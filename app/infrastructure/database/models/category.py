@@ -21,7 +21,7 @@ class Category(Base):
     name = Column(String, nullable=False)
     parent_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
 
-    subcategories = relationship("Category", backref="parent", remote_side=[id])
+    subcategories = relationship("Subcategory", back_populates="category")
     tickets = relationship("Ticket", back_populates="category")
 
     def __repr__(self):

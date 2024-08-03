@@ -44,7 +44,7 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
 
 - **Configurar repositório no GitHub**
   - Criar um novo repositório no GitHub para o projeto.
-  - Inicializar o repositório com um arquivo README.md e .gitignore adequado.
+  - Inicializar o repositório com um arquivo `README.md` e `.gitignore` adequado.
   - Configurar GitFlow para gerenciamento de branches.
 
 - **Configurar GitHub Actions para CI/CD**
@@ -78,6 +78,10 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
 - **Configurar projeto base em Python**
   - Criar estrutura do projeto com FastAPI.
   - Configurar rotas básicas para a API.
+
+- **Implementar API CRUD para Users**
+  - Desenvolver endpoints para criação, leitura, atualização e exclusão de usuários.
+  - Validar dados de entrada e saída nos endpoints.
 
 - **Implementar API CRUD para Tickets**
   - Desenvolver endpoints para criação, leitura, atualização e exclusão de tickets.
@@ -146,7 +150,74 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
 ## Instruções de Instalação
 
 1. Clone o repositório usando SSH:
-   ```bash
-   git clone git@github.com:oliveirakcs/ticket-management.git
-   
-   Nota: Certifique-se de ter uma chave SSH configurada no seu GitHub para realizar o clone via SSH.
+    ```bash
+    git clone git@github.com:oliveirakcs/ticket-management.git
+    ```
+
+    Nota: Certifique-se de ter uma chave SSH configurada no seu GitHub para realizar o clone via SSH.
+
+2. Configuração do arquivo .env:
+
+    Após clonar o repositório, crie um arquivo .env na raiz do projeto.
+    Copie as variáveis de ambiente do arquivo .env.example para o novo arquivo .env.
+    Preencha os valores adequados para cada variável de ambiente.
+
+3. Instalação do Pre-Commit:
+
+    Instale o pre-commit na pasta raiz do projeto para garantir a qualidade do código antes de cada commit.
+    Execute o seguinte comando para instalar o pre-commit:
+
+    ```bash
+      pre-commit install
+    ```
+
+    Este setup irá configurar o pre-commit para executar verificações de código usando pylint e black antes de cada commit.
+
+4. Build e execução dos containers Docker:
+
+    Utilize o comando make containers a partir do Makefile para construir e iniciar os containers Docker.
+
+    ```bash
+    make containers
+    ```
+
+    Isso irá construir os containers, executar automaticamente as migrações, criar o usuário sysadmin (caso não exista) e configurar a API, o banco de dados e o PG Admin.
+
+    Caso precise dar um refresh nos containers, basta usar:
+
+    ```bash
+    make restart
+    ```
+
+    Por fim, caso deseje subir os containers sem buildar, basta executar:
+
+    ```bash
+    make up
+    ```
+
+5. Configuração do PG Admin:
+
+    Acesse o PG Admin e crie um novo server.
+    Nomeie o server com o mesmo nome definido na variável DB_NAME do arquivo .env.
+    No PG Admin, o host do banco de dados deve ser apenas "db".
+    Use o usuário e a senha definidos no arquivo .env.
+
+    Assim, o usuário terá acesso à base de dados para gerenciar e visualizar as informações.
+
+6. Execução de Testes:
+
+    Para executar os testes, utilize o seguinte comando:
+
+    ```bash
+    make tests
+    ```
+
+    Isso irá rodar os testes localizados no diretório especificado.
+
+## Acesso
+
+    API: http://localhost:1201/docs
+    A API estará disponível no endereço acima, onde você pode interagir com os endpoints do projeto.
+
+    PGAdmin: http://localhost:5050
+    O PGAdmin pode ser acessado neste link para gerenciar e visualizar o banco de dados PostgreSQL
