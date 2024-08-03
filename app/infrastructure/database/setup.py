@@ -1,10 +1,10 @@
 """Create initial tables in the database."""
 
 import os
-from app.infrastructure import User
+from app.infrastructure.database.models import User
 from app.infrastructure.database import SessionLocal
 from app.core.auth.hashing import Hash
-from app.infrastructure import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from app.infrastructure.database import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
 db = SessionLocal()
 

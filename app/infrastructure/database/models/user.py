@@ -3,8 +3,7 @@
 import uuid
 from sqlalchemy import Column, String, Boolean, DateTime, UUID
 from sqlalchemy.sql import func
-
-from app.infrastructure.database import Base
+from app.infrastructure import Base
 
 
 class User(Base):
