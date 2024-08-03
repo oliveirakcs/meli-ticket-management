@@ -11,7 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
 from alembic import context
 
-from app.infrastructure import Base
+from app.infrastructure.database.base import Base
 from app.infrastructure.database import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 import app.infrastructure.database.models
 
