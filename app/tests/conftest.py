@@ -11,7 +11,7 @@ client = create_client()
 
 
 @pytest.fixture(name="user", scope="session")
-def create_user(access_token, company):
+def create_user(access_token):
     """
     Fixture to create a user.
 
@@ -28,7 +28,6 @@ def create_user(access_token, company):
             "username": "testuser",
             "email": "test@example.com",
             "password": "password",
-            "company_id": company["id"],
             "role": "sysadmin",
         },
         headers={"Authorization": f"Bearer {access_token}"},

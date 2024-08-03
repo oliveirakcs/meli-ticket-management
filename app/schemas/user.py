@@ -11,7 +11,6 @@ class User(BaseModel):
     username: str
     email: str
     password: str
-    company_id: UUID4
     role: str
 
 
@@ -21,7 +20,6 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     username: Optional[str] = None
     email: Optional[str] = None
-    company_id: Optional[UUID4] = None
     role: Optional[str] = None
 
 

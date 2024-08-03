@@ -17,7 +17,7 @@ def create_sysadmin():
     """Create the sysadmin user if it does not exist.
 
     This function checks if the sysadmin user exists in the database.
-    If not, it creates the sysadmin user and assigns it to the SysAdmin company.
+    If not, it creates the sysadmin user.
     """
 
     user = db.query(User).filter(User.username == "sysadmin").first()

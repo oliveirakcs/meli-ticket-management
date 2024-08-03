@@ -19,8 +19,6 @@ class User(Base):
         password (str): The password of the user, cannot be null.
         active (bool): Indicates whether the user account is active, defaults to True.
         role (str): The role of the user.
-        company_id (UUID): The identifier of the associated company.
-        company (relationship): A read-only relationship to the Company model.
         created_at (DateTime): The timestamp when the user record was created, auto-generated.
         updated_at (DateTime): The timestamp when the user record was last updated, auto-generated.
 
