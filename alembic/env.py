@@ -23,8 +23,6 @@ config = context.config
 
 connection_string = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 config.set_main_option("sqlalchemy.url", connection_string)
 
 fileConfig(config.config_file_name)

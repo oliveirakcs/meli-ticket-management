@@ -38,6 +38,7 @@ pylint==3.2.6
 pytest==8.3.2
 python-dotenv==1.0.1
 python-jose==3.3.0
+python-multipart==0.0.9
 PyYAML==6.0.1
 rsa==4.9
 six==1.16.0

@@ -2,6 +2,7 @@
 Global fixtures for API testing.
 """
 
+import os
 from dotenv import load_dotenv, find_dotenv
 import pytest
 from app.tests import create_client
@@ -27,6 +28,47 @@ def create_user(access_token):
             "name": "Test User",
             "username": "testuser",
             "email": "test@example.com",
+            "password": "password",
+            "role": "sysadmin",
+        },
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+@pytest.fixture(name="access_token", scope="session")
+def fixture_access_token():
+    """
+    Returns an access token by making a POST request to the login endpoint with
+    the sysadmin credentials.
+
+    Returns:
+        str: A string representing the access token.
+    """
+    response = client.post(
+        url="/api/v1/login/", data={"username": os.environ.get("SYSADMIN_USERNAME"), "password": os.environ.get("SYSADMIN_PASSWORD")}
+    )
+    return response.json()["access_token"]
+
+
+@pytest.fixture(name="user_to_delete_test", scope="session")
+def create_delete_user(access_token):
+    """
+    Fixture to create a user for deletion.
+
+    Args:
+        access_token (str): Access token for authorization.
+
+    Returns:
+        dict: Data of the user created for deletion.
+    """
+    response = client.post(
+        "/api/v1/users/",
+        json={
+            "name": "Test Delete User",
+            "username": "testdeleteuser",
+            "email": "testdelete@example.com",
             "password": "password",
             "role": "sysadmin",
         },
