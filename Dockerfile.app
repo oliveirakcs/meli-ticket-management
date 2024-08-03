@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-RUN chmod +x /app/app/scripts/db_container_setup/wait_for_db.py
+RUN chmod +x /app/app/scripts/db_container_setup/container_setup.py
