@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: python commit_check.py
+        entry: python app/scripts/commit_check.py
         language: python
         types: [python]
         stages: [commit]

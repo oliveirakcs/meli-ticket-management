@@ -1,0 +1,55 @@
+services:
+  app:
+    container_name: app-meli
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    command: "sh -c 'python /app/app/scripts/db_container_setup/wait_for_db.py db 5432 8000'"
+    ports:
+      - "1201:8000"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: Always
+    depends_on:
+      - db
+
+  db:
+    container_name: db-meli
+    build:
+      context: .
+      dockerfile: Dockerfile.data
+    ports:
+      - "54320:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -d ${DB_NAME} -h localhost -U ${DB_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
+  pgadmin:
+    container_name: pgadmin-meli
+    user: root
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+      - app
+    volumes:
+      - postgres-data:/var/lib/pgadmin4/storage
+      - .:/var/lib/pgadmin/shared_data
+    restart: always
+
+volumes:
+  postgres-data:
