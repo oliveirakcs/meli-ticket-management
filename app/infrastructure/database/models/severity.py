@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from app.infrastructure import Base
+from app.infrastructure.database.base import Base
 
 
 class Severity(Base):

@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.ext.declarative import declarative_base
 
 load_dotenv()
 
@@ -20,8 +19,6 @@ connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{D
 engine = create_engine(connection_string, pool_size=20, max_overflow=10)
 
 SessionLocal = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=False))
-
-Base = declarative_base()
 
 
 def get_db():

@@ -3,7 +3,7 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.infrastructure import Base
+from app.infrastructure.database.base import Base
 
 
 class Ticket(Base):
