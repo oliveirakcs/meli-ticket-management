@@ -1,0 +1,50 @@
+services:
+  app:
+    container_name: app-test-meli
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    command: "sh -c 'python /app/app/scripts/db_container_setup/wait_for_db.py db 5432 8001'"
+    ports:
+      - "1202:8001"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: db-test-meli
+    build:
+      context: .
+      dockerfile: Dockerfile.data
+    ports:
+      - "54321:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -d ${DB_NAME} -h localhost -U ${DB_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
+  tests:
+    container_name: tests-meli
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    volumes:
+      - .:/tests_app
+    command: "pytest ${DOCKER_TEST_PATH} -s -v -p no:warnings"
+    depends_on:
+      - app
+
+volumes:
+  postgres-data:
