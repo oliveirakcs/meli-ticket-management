@@ -25,10 +25,10 @@ jobs:
       - name: Upgrade PIP
         run: pip install --upgrade pip
 
-      # - name: Set up Docker Compose
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y docker-compose
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Create .env File
         run: |
@@ -58,11 +58,36 @@ jobs:
             grep -iq "$field" "$TEMPLATE_PATH" || echo "Error: The following field is missing in the pull request template: $field"
           done
 
-      # - name: Install Dependencies
-      #   run: pip install -r requirements.txt
+      - name: Install DSUtils
+        run: pip install distutils-pytest
 
-      # - name: Build and Run Docker Compose
-      #   run: docker-compose -f ./docker-compose.test.yml up --build --abort-on-container-exit
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
 
-      # - name: Tear Down Docker Compose
-      #   run: docker-compose -f ./docker-compose.test.yml down
+      - name: Install BC
+        run: sudo apt-get install -y bc
+
+      - name: Install awk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gawk
+
+      - name: Run Pylint Score
+        run: |
+          pylint --output-format=parseable --fail-under=9.8 app
+          pylint_score=$(pylint --output-format=parseable app | grep -oE "rated at ([0-9.]+)")
+          pylint_score=${pylint_score#* }
+          echo "Pylint Score: $pylint_score"
+          if (( $(awk 'BEGIN{print ('"$pylint_score"' >= 9.8)}') )); then
+            echo "Pylint score is 9.8 or greater. Proceeding with the pull request."
+            exit 0
+          else
+            echo "Pylint score is less than 9.8. Exiting without merging the pull request."
+            exit 1
+          fi
+
+      - name: Build and Run Docker Compose
+        run: docker-compose -f ./docker-compose.test.yml up --build --abort-on-container-exit
+
+      - name: Tear Down Docker Compose
+        run: docker-compose -f ./docker-compose.test.yml down

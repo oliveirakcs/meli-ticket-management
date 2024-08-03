@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
-    command: "sh -c 'python /app/app/scripts/db_container_setup/wait_for_db.py db 5432 8001'"
+    command: "sh -c 'python /app/app/scripts/db_container_setup/container_setup.py db 5432 8001'"
     ports:
       - "1202:8001"
     volumes:

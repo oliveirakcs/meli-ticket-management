@@ -8,8 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Meli Ticket Manager",
-    description="""Simplifique o gerenciamento de tickets com nossa API intuitiva.
-    Faça perguntas como 'Quantos tickets temos?' ou 'Qual é a prioridade mais alta?' e obtenha respostas claras e imediatas.""",
+    description="""Simplifique o gerenciamento de tickets com essa API intuitiva.""",
     version="0.0.0.1",
 )
 

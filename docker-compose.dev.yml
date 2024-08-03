@@ -4,13 +4,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
-    command: "sh -c 'python /app/app/scripts/db_container_setup/wait_for_db.py db 5432 8000'"
+    command: "sh -c 'python /app/app/scripts/db_container_setup/container_setup.py db 5432 8000'"
     ports:
       - "1201:8000"
     volumes:
       - .:/app
       - /var/run/docker.sock:/var/run/docker.sock
-    restart: Always
+    restart: always
     depends_on:
       - db
 
