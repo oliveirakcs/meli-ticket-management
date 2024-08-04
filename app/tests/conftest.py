@@ -76,3 +76,43 @@ def create_delete_user(access_token):
     )
     assert response.status_code == 201
     return response.json()
+
+
+@pytest.fixture(name="severity", scope="session")
+def create_severity(access_token):
+    """
+    Fixture to create a severity level for testing.
+
+    Args:
+        access_token (str): Access token for authorization.
+
+    Returns:
+        dict: Data of the created severity level.
+    """
+    response = client.post(
+        "/api/v1/severities/",
+        json={"level": 2, "description": "High severity level"},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+@pytest.fixture(name="severity_to_delete", scope="session")
+def create_delete_severity(access_token):
+    """
+    Fixture to create a severity level intended for deletion testing.
+
+    Args:
+        access_token (str): Access token for authorization.
+
+    Returns:
+        dict: Data of the created severity level for deletion.
+    """
+    response = client.post(
+        "/api/v1/severities/",
+        json={"level": 3, "description": "High severity level to delete"},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()
