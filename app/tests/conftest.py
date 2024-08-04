@@ -116,3 +116,49 @@ def create_delete_severity(access_token):
     )
     assert response.status_code == 201
     return response.json()
+
+
+@pytest.fixture(name="category", scope="session")
+def create_category(access_token):
+    """
+    Fixture to create a category for testing.
+
+    Args:
+        access_token (str): Access token for authorization.
+
+    Returns:
+        dict: Data of the created category.
+    """
+    response = client.post(
+        "/api/v1/categories/",
+        json={
+            "name": "Test Category",
+            "parent_id": None,
+        },
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+@pytest.fixture(name="category_to_delete", scope="session")
+def create_delete_category(access_token):
+    """
+    Fixture to create a category intended for deletion testing.
+
+    Args:
+        access_token (str): Access token for authorization.
+
+    Returns:
+        dict: Data of the created category for deletion.
+    """
+    response = client.post(
+        "/api/v1/categories/",
+        json={
+            "name": "Delete Category",
+            "parent_id": None,
+        },
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()

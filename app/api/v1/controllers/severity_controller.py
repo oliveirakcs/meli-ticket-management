@@ -5,7 +5,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Depends
 from app.infrastructure import get_db, Severity
-from app.schemas import Severity as SchemaSeverity, SeverityUpdate as SchemaSeverityUpdate
+from app.schemas import SeverityUpdate as SchemaSeverityUpdate, SeverityShow as SchemaSeverityShow, Severity as SchemaSeverity
 
 
 class SeverityController:
@@ -22,12 +22,12 @@ class SeverityController:
         """
         self.db = db
 
-    def get_all(self) -> List[SchemaSeverity]:
+    def get_all(self) -> List[SchemaSeverityShow]:
         """
         Get all severity levels.
 
         Returns:
-            List[SchemaSeverity]: A list of severity objects.
+            List[SchemaSeverityShow]: A list of severity objects.
 
         Raises:
             HTTPException: Raised if no severity levels are found.
@@ -37,7 +37,7 @@ class SeverityController:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No severity levels found")
         return severities
 
-    def create(self, request: Severity) -> Severity:
+    def create(self, request: SchemaSeverity) -> SchemaSeverityShow:
         """
         Create a new severity level.
 
@@ -71,7 +71,7 @@ class SeverityController:
 
         return new_severity
 
-    def show(self, severity_id: UUID4) -> SchemaSeverity:
+    def show(self, severity_id: UUID4) -> SchemaSeverityShow:
         """
         Retrieve a severity level by severity ID.
 
@@ -92,7 +92,7 @@ class SeverityController:
             )
         return severity
 
-    def update(self, severity_id: UUID4, request: SchemaSeverityUpdate) -> SchemaSeverity:
+    def update(self, severity_id: UUID4, request: SchemaSeverityUpdate) -> SchemaSeverityShow:
         """
         Update severity information.
 

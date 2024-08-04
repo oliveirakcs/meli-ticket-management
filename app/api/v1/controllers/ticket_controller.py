@@ -5,8 +5,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Depends
 from app.infrastructure import get_db, Ticket, Category, Subcategory, Severity
-from app.schemas import TicketUpdate as SchemaTicketUpdate
-from app.schemas import Ticket as SchemaTicket
+from app.schemas import TicketUpdate as SchemaTicketUpdate, TicketShow as SchemaTicketShow, Ticket as SchemaTicket
 
 
 class TicketController:
@@ -23,12 +22,12 @@ class TicketController:
         """
         self.db = db
 
-    def get_all(self) -> List[Ticket]:
+    def get_all(self) -> List[SchemaTicketShow]:
         """
         Get all tickets.
 
         Returns:
-            List[Ticket]: A list of ticket objects.
+            List[SchemaTicketShow]: A list of ticket objects.
 
         Raises:
             HTTPException: Raised if no tickets are found.
@@ -38,7 +37,7 @@ class TicketController:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No tickets found")
         return tickets
 
-    def create(self, request: SchemaTicket) -> Ticket:
+    def create(self, request: SchemaTicket) -> SchemaTicketShow:
         """
         Create a new ticket.
 
@@ -46,7 +45,7 @@ class TicketController:
             request (SchemaTicket): The request containing details of the new ticket.
 
         Returns:
-            Ticket: The newly created ticket object.
+            SchemaTicketShow: The newly created ticket object.
 
         Raises:
             HTTPException: Raised if any required field is not provided or if the category, subcategory, or severity doesn't exist.
@@ -101,7 +100,7 @@ class TicketController:
 
         return new_ticket
 
-    def show(self, ticket_id: UUID4) -> Ticket:
+    def show(self, ticket_id: UUID4) -> SchemaTicketShow:
         """
         Retrieve a ticket by ticket ID.
 
@@ -109,7 +108,7 @@ class TicketController:
             ticket_id (UUID4): The ID of the ticket to retrieve.
 
         Returns:
-            Ticket: The ticket corresponding to the provided ID.
+            SchemaTicketShow: The ticket corresponding to the provided ID.
 
         Raises:
             HTTPException: Raised if the ticket with the provided ID is not found.
@@ -122,7 +121,7 @@ class TicketController:
             )
         return ticket
 
-    def update(self, ticket_id: UUID4, request: SchemaTicketUpdate) -> Ticket:
+    def update(self, ticket_id: UUID4, request: SchemaTicketUpdate) -> SchemaTicketShow:
         """
         Update ticket information.
 
@@ -131,7 +130,7 @@ class TicketController:
             request (SchemaTicketUpdate): The updated ticket information.
 
         Returns:
-            Ticket: The updated ticket information.
+            SchemaTicketShow: The updated ticket information.
 
         Raises:
             HTTPException: Raised if the ticket with the provided ID is not found or if any field is invalid.

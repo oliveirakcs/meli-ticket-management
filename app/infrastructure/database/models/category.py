@@ -20,7 +20,7 @@ class Category(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
-    parent_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=False)
+    parent_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
 
     subcategories = relationship("Subcategory", back_populates="category")
     tickets = relationship("Ticket", back_populates="category")

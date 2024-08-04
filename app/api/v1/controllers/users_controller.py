@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Depends
 from app.core import Hash
 from app.infrastructure import get_db, User
-from app.schemas import UserUpdate as SchemaUserUpdate, User as SchemaUser
+from app.schemas import UserUpdate as SchemaUserUpdate, User as SchemaUser, UserShow as SchemaUserShow
 
 
 class UserController:
@@ -23,12 +23,12 @@ class UserController:
         """
         self.db = db
 
-    def get_all(self) -> List[User]:
+    def get_all(self) -> List[SchemaUserShow]:
         """
         Get all users.
 
         Returns:
-            List[User]: A list of user objects.
+            List[SchemaUserShow]: A list of user objects.
 
         Raises:
             HTTPException: Raised if no users are found.
@@ -38,7 +38,7 @@ class UserController:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No users found")
         return users
 
-    def create(self, request: SchemaUser) -> User:
+    def create(self, request: SchemaUser) -> SchemaUserShow:
         """
         Create a new user.
 
@@ -46,7 +46,7 @@ class UserController:
             request (UserCreate): The request containing details of the new user.
 
         Returns:
-            User: The newly created user object.
+            SchemaUserShow: The newly created user object.
 
         Raises:
             HTTPException: Raised if any required field is not provided or if a user with the same username already exists.
@@ -79,7 +79,7 @@ class UserController:
 
         return new_user
 
-    def show(self, user_id: UUID4) -> User:
+    def show(self, user_id: UUID4) -> SchemaUserShow:
         """
         Retrieve a user by user ID.
 
@@ -87,7 +87,7 @@ class UserController:
             user_id (UUID4): The ID of the user to retrieve.
 
         Returns:
-            User: The user corresponding to the provided ID.
+            SchemaUserShow: The user corresponding to the provided ID.
 
         Raises:
             HTTPException: Raised if the user with the provided ID is not found.
@@ -100,7 +100,7 @@ class UserController:
             )
         return user
 
-    def update(self, user_id: UUID4, request: SchemaUserUpdate) -> User:
+    def update(self, user_id: UUID4, request: SchemaUserUpdate) -> SchemaUserShow:
         """
         Update user information.
 
@@ -109,7 +109,7 @@ class UserController:
             request (UserUpdate): The updated user information.
 
         Returns:
-            User: The updated user information.
+            SchemaUserShow: The updated user information.
 
         Raises:
             HTTPException: Raised if the user with the provided ID is not found or if any field is left blank.
