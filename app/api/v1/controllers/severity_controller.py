@@ -1,11 +1,16 @@
-"""Severity Controller"""
+"""Controllers for managing severity operations in the database related to Ticket API endpoints."""
 
 from typing import List
+import logging
 from pydantic import UUID4
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status, Depends
 from app.infrastructure import get_db, Severity
 from app.schemas import SeverityUpdate as SchemaSeverityUpdate, SeverityShow as SchemaSeverityShow, Severity as SchemaSeverity
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class SeverityController:
@@ -56,20 +61,27 @@ class SeverityController:
                 detail="Severity level 1 is handled by another team. Please contact the dedicated support team.",
             )
 
-        existing_severity = self.db.query(Severity).filter_by(level=request.level).first()
-        if existing_severity:
+        try:
+            existing_severity = self.db.query(Severity).filter_by(level=request.level).first()
+            if existing_severity:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"A severity with level '{request.level}' already exists.",
+                )
+
+            new_severity = Severity(level=request.level, description=request.description)
+
+            self.db.add(new_severity)
+            self.db.commit()
+            self.db.refresh(new_severity)
+
+            return new_severity
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error creating severity: %s", e)
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"A severity with level '{request.level}' already exists.",
-            )
-
-        new_severity = Severity(level=request.level, description=request.description)
-
-        self.db.add(new_severity)
-        self.db.commit()
-        self.db.refresh(new_severity)
-
-        return new_severity
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while creating the severity. Please try again."
+            ) from e
 
     def show(self, severity_id: UUID4) -> SchemaSeverityShow:
         """
@@ -106,27 +118,34 @@ class SeverityController:
         Raises:
             HTTPException: Raised if the severity with the provided ID is not found or if any field is invalid.
         """
-        severity = self.db.query(Severity).filter(Severity.id == severity_id).first()
-        if not severity:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Severity {severity_id} not found",
-            )
-
-        if request.level is not None and request.level != severity.level:
-            existing_severity = self.db.query(Severity).filter_by(level=request.level).first()
-            if existing_severity:
+        try:
+            severity = self.db.query(Severity).filter(Severity.id == severity_id).first()
+            if not severity:
                 raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=f"A severity with level '{request.level}' already exists.",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Severity {severity_id} not found",
                 )
 
-        for key, value in request.dict(exclude_unset=True).items():
-            setattr(severity, key, value)
+            if request.level is not None and request.level != severity.level:
+                existing_severity = self.db.query(Severity).filter_by(level=request.level).first()
+                if existing_severity:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=f"A severity with level '{request.level}' already exists.",
+                    )
 
-        self.db.commit()
-        self.db.refresh(severity)
-        return severity
+            for key, value in request.dict(exclude_unset=True).items():
+                setattr(severity, key, value)
+
+            self.db.commit()
+            self.db.refresh(severity)
+            return severity
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error updating severity %s: %s", severity_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while updating the severity. Please try again."
+            ) from e
 
     def delete(self, severity_id: UUID4) -> str:
         """
@@ -141,13 +160,20 @@ class SeverityController:
         Raises:
             HTTPException: Raised if the severity with the provided ID is not found.
         """
-        severity = self.db.query(Severity).filter(Severity.id == severity_id).first()
-        if not severity:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Severity {severity_id} not found")
+        try:
+            severity = self.db.query(Severity).filter(Severity.id == severity_id).first()
+            if not severity:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Severity {severity_id} not found")
 
-        self.db.delete(severity)
-        self.db.commit()
-        return f"Severity {severity_id} deleted."
+            self.db.delete(severity)
+            self.db.commit()
+            return f"Severity {severity_id} deleted."
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error deleting severity %s: %s", severity_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while deleting the severity. Please try again."
+            ) from e
 
 
 def get_severity_controller(db: Session = Depends(get_db)):

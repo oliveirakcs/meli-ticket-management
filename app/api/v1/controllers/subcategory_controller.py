@@ -1,11 +1,16 @@
 """Controllers for managing subcategory operations in the database related to Ticket API endpoints."""
 
 from typing import List
+import logging
 from pydantic import UUID4
 from fastapi import HTTPException, status, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from app.schemas import Subcategory as SchemaSubcategory, SubcategoryUpdate as SchemaSubcategoryUpdate, SubcategoryShow as SchemaSubcategoryShow
 from app.infrastructure import Subcategory, get_db
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class SubcategoryController:
@@ -44,20 +49,27 @@ class SubcategoryController:
         Raises:
             HTTPException: If a subcategory with the same name already exists.
         """
-        existing_subcategory = self.db.query(Subcategory).filter_by(name=request.name, category_id=request.category_id).first()
-        if existing_subcategory:
+        try:
+            existing_subcategory = self.db.query(Subcategory).filter_by(name=request.name, category_id=request.category_id).first()
+            if existing_subcategory:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Subcategory '{request.name}' already exists under this category.",
+                )
+
+            new_subcategory = Subcategory(name=request.name, category_id=request.category_id)
+
+            self.db.add(new_subcategory)
+            self.db.commit()
+            self.db.refresh(new_subcategory)
+
+            return new_subcategory
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error creating subcategory: %s", e)
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Subcategory '{request.name}' already exists under this category.",
-            )
-
-        new_subcategory = Subcategory(name=request.name, category_id=request.category_id)
-
-        self.db.add(new_subcategory)
-        self.db.commit()
-        self.db.refresh(new_subcategory)
-
-        return new_subcategory
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while creating the subcategory. Please try again."
+            ) from e
 
     def show(self, subcategory_id: UUID4) -> SchemaSubcategoryShow:
         """
@@ -92,21 +104,36 @@ class SubcategoryController:
             SchemaSubcategoryShow: The updated subcategory object.
 
         Raises:
-            HTTPException: If the subcategory is not found.
+            HTTPException: If the subcategory is not found or if a conflict occurs.
         """
-        subcategory = self.db.query(Subcategory).filter(Subcategory.id == subcategory_id).first()
-        if not subcategory:
+        try:
+            subcategory = self.db.query(Subcategory).filter(Subcategory.id == subcategory_id).first()
+            if not subcategory:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Subcategory {subcategory_id} not found",
+                )
+
+            if request.name:
+                existing_subcategory = self.db.query(Subcategory).filter_by(name=request.name, category_id=request.category_id).first()
+                if existing_subcategory and existing_subcategory.id != subcategory_id:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=f"A subcategory with name '{request.name}' already exists under this category.",
+                    )
+
+            for key, value in request.model_dump(exclude_unset=True).items():
+                setattr(subcategory, key, value)
+
+            self.db.commit()
+            self.db.refresh(subcategory)
+            return subcategory
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error updating subcategory %s: %s", subcategory_id, e)
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Subcategory {subcategory_id} not found",
-            )
-
-        for key, value in request.model_dump(exclude_unset=True).items():
-            setattr(subcategory, key, value)
-
-        self.db.commit()
-        self.db.refresh(subcategory)
-        return subcategory
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while updating the subcategory. Please try again."
+            ) from e
 
     def delete(self, subcategory_id: UUID4) -> str:
         """
@@ -121,16 +148,23 @@ class SubcategoryController:
         Raises:
             HTTPException: If the subcategory is not found.
         """
-        subcategory = self.db.query(Subcategory).filter(Subcategory.id == subcategory_id).first()
-        if not subcategory:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Subcategory {subcategory_id} not found",
-            )
+        try:
+            subcategory = self.db.query(Subcategory).filter(Subcategory.id == subcategory_id).first()
+            if not subcategory:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Subcategory {subcategory_id} not found",
+                )
 
-        self.db.delete(subcategory)
-        self.db.commit()
-        return f"Subcategory {subcategory_id} deleted successfully."
+            self.db.delete(subcategory)
+            self.db.commit()
+            return f"Subcategory {subcategory_id} deleted successfully."
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error deleting subcategory %s: %s", subcategory_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while deleting the subcategory. Please try again."
+            ) from e
 
 
 def get_subcategory_controller(db: Session = Depends(get_db)):

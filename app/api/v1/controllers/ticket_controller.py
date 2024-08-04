@@ -1,11 +1,16 @@
 """Controllers for managing ticket operations in the database related to Ticket API endpoints."""
 
 from typing import List
+import logging
 from pydantic import UUID4
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status, Depends
 from app.infrastructure import get_db, Ticket, Category, Subcategory, Severity
 from app.schemas import TicketUpdate as SchemaTicketUpdate, TicketShow as SchemaTicketShow, Ticket as SchemaTicket
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class TicketController:
@@ -50,55 +55,62 @@ class TicketController:
         Raises:
             HTTPException: Raised if any required field is not provided or if the category, subcategory, or severity doesn't exist.
         """
-        required_fields = [request.title, request.category_id, request.severity_id]
-        if not all(required_fields):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Title, category_id, and severity_id must be filled",
-            )
-
-        severity = self.db.query(Severity).filter(Severity.id == request.severity_id).first()
-        if not severity:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Severity with ID '{request.severity_id}' not found.",
-            )
-
-        if severity.level == 1:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot create a ticket with severity level 1.",
-            )
-
-        category = self.db.query(Category).filter(Category.id == request.category_id).first()
-        if not category:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Category with ID '{request.category_id}' not found.",
-            )
-
-        if request.subcategory_id:
-            subcategory = self.db.query(Subcategory).filter(Subcategory.id == request.subcategory_id).first()
-            if not subcategory:
+        try:
+            required_fields = [request.title, request.category_id, request.severity_id]
+            if not all(required_fields):
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Subcategory with ID '{request.subcategory_id}' not found.",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Title, category_id, and severity_id must be filled",
                 )
 
-        new_ticket = Ticket(
-            title=request.title,
-            description=request.description,
-            category_id=request.category_id,
-            subcategory_id=request.subcategory_id,
-            severity_id=request.severity_id,
-            status=request.status,
-        )
+            severity = self.db.query(Severity).filter(Severity.id == request.severity_id).first()
+            if not severity:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Severity with ID '{request.severity_id}' not found.",
+                )
 
-        self.db.add(new_ticket)
-        self.db.commit()
-        self.db.refresh(new_ticket)
+            if severity.level == 1:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Cannot create a ticket with severity level 1.",
+                )
 
-        return new_ticket
+            category = self.db.query(Category).filter(Category.id == request.category_id).first()
+            if not category:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Category with ID '{request.category_id}' not found.",
+                )
+
+            if request.subcategory_id:
+                subcategory = self.db.query(Subcategory).filter(Subcategory.id == request.subcategory_id).first()
+                if not subcategory:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Subcategory with ID '{request.subcategory_id}' not found.",
+                    )
+
+            new_ticket = Ticket(
+                title=request.title,
+                description=request.description,
+                category_id=request.category_id,
+                subcategory_id=request.subcategory_id,
+                severity_id=request.severity_id,
+                status=request.status,
+            )
+
+            self.db.add(new_ticket)
+            self.db.commit()
+            self.db.refresh(new_ticket)
+
+            return new_ticket
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error creating ticket: %s", e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while creating the ticket. Please try again."
+            ) from e
 
     def show(self, ticket_id: UUID4) -> SchemaTicketShow:
         """
@@ -135,48 +147,55 @@ class TicketController:
         Raises:
             HTTPException: Raised if the ticket with the provided ID is not found or if any field is invalid.
         """
-        ticket = self.db.query(Ticket).filter(Ticket.id == ticket_id).first()
-        if not ticket:
+        try:
+            ticket = self.db.query(Ticket).filter(Ticket.id == ticket_id).first()
+            if not ticket:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Ticket {ticket_id} not found",
+                )
+
+            if request.severity_id:
+                severity = self.db.query(Severity).filter(Severity.id == request.severity_id).first()
+                if not severity:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Severity with ID '{request.severity_id}' not found.",
+                    )
+                if severity.level == 1:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Cannot update ticket to severity level 1.",
+                    )
+
+            if request.category_id:
+                category = self.db.query(Category).filter(Category.id == request.category_id).first()
+                if not category:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Category with ID '{request.category_id}' not found.",
+                    )
+
+            if request.subcategory_id:
+                subcategory = self.db.query(Subcategory).filter(Subcategory.id == request.subcategory_id).first()
+                if not subcategory:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Subcategory with ID '{request.subcategory_id}' not found.",
+                    )
+
+            for key, value in request.model_dump(exclude_unset=True).items():
+                setattr(ticket, key, value)
+
+            self.db.commit()
+            self.db.refresh(ticket)
+            return ticket
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error updating ticket %s: %s", ticket_id, e)
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Ticket {ticket_id} not found",
-            )
-
-        if request.severity_id:
-            severity = self.db.query(Severity).filter(Severity.id == request.severity_id).first()
-            if not severity:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Severity with ID '{request.severity_id}' not found.",
-                )
-            if severity.level == 1:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Cannot update ticket to severity level 1.",
-                )
-
-        if request.category_id:
-            category = self.db.query(Category).filter(Category.id == request.category_id).first()
-            if not category:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Category with ID '{request.category_id}' not found.",
-                )
-
-        if request.subcategory_id:
-            subcategory = self.db.query(Subcategory).filter(Subcategory.id == request.subcategory_id).first()
-            if not subcategory:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Subcategory with ID '{request.subcategory_id}' not found.",
-                )
-
-        for key, value in request.model_dump(exclude_unset=True).items():
-            setattr(ticket, key, value)
-
-        self.db.commit()
-        self.db.refresh(ticket)
-        return ticket
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while updating the ticket. Please try again."
+            ) from e
 
     def delete(self, ticket_id: UUID4) -> str:
         """
@@ -191,13 +210,20 @@ class TicketController:
         Raises:
             HTTPException: Raised if the ticket with the provided ID is not found.
         """
-        ticket = self.db.query(Ticket).filter(Ticket.id == ticket_id).first()
-        if not ticket:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ticket {ticket_id} not found")
+        try:
+            ticket = self.db.query(Ticket).filter(Ticket.id == ticket_id).first()
+            if not ticket:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ticket {ticket_id} not found")
 
-        self.db.delete(ticket)
-        self.db.commit()
-        return f"Ticket {ticket_id} deleted."
+            self.db.delete(ticket)
+            self.db.commit()
+            return f"Ticket {ticket_id} deleted."
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error deleting ticket %s: %s", ticket_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while deleting the ticket. Please try again."
+            ) from e
 
 
 def get_ticket_controller(db: Session = Depends(get_db)):

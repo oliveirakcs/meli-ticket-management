@@ -1,11 +1,16 @@
-"""Category Controller"""
+"""Controllers for managing category operations in the database related to Ticket API endpoints."""
 
 from typing import List
+import logging
 from pydantic import UUID4
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status, Depends
 from app.infrastructure import get_db, Category
 from app.schemas import CategoryUpdate as SchemaCategoryUpdate, CategoryShow as SchemaCategoryShow, Category as SchemaCategory
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class CategoryController:
@@ -50,20 +55,27 @@ class CategoryController:
         Raises:
             HTTPException: Raised if a category with the same name already exists.
         """
-        existing_category = self.db.query(Category).filter_by(name=request.name).first()
-        if existing_category:
+        try:
+            existing_category = self.db.query(Category).filter_by(name=request.name).first()
+            if existing_category:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"A category with name '{request.name}' already exists.",
+                )
+
+            new_category = Category(name=request.name, parent_id=request.parent_id)
+
+            self.db.add(new_category)
+            self.db.commit()
+            self.db.refresh(new_category)
+
+            return new_category
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error creating category: %s", e)
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"A category with name '{request.name}' already exists.",
-            )
-
-        new_category = Category(name=request.name, parent_id=request.parent_id)
-
-        self.db.add(new_category)
-        self.db.commit()
-        self.db.refresh(new_category)
-
-        return new_category
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while creating the category. Please try again."
+            ) from e
 
     def show(self, category_id: UUID4) -> SchemaCategoryShow:
         """
@@ -100,27 +112,34 @@ class CategoryController:
         Raises:
             HTTPException: Raised if the category with the provided ID is not found or if any field is invalid.
         """
-        category = self.db.query(Category).filter(Category.id == category_id).first()
-        if not category:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Category {category_id} not found",
-            )
-
-        if request.name:
-            existing_category = self.db.query(Category).filter_by(name=request.name).first()
-            if existing_category:
+        try:
+            category = self.db.query(Category).filter(Category.id == category_id).first()
+            if not category:
                 raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=f"A category with name '{request.name}' already exists.",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Category {category_id} not found",
                 )
 
-        for key, value in request.model_dump(exclude_unset=True).items():
-            setattr(category, key, value)
+            if request.name:
+                existing_category = self.db.query(Category).filter_by(name=request.name).first()
+                if existing_category:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=f"A category with name '{request.name}' already exists.",
+                    )
 
-        self.db.commit()
-        self.db.refresh(category)
-        return category
+            for key, value in request.model_dump(exclude_unset=True).items():
+                setattr(category, key, value)
+
+            self.db.commit()
+            self.db.refresh(category)
+            return category
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error updating category %s: %s", category_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while updating the category. Please try again."
+            ) from e
 
     def delete(self, category_id: UUID4) -> str:
         """
@@ -135,13 +154,20 @@ class CategoryController:
         Raises:
             HTTPException: Raised if the category with the provided ID is not found.
         """
-        category = self.db.query(Category).filter(Category.id == category_id).first()
-        if not category:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Category {category_id} not found")
+        try:
+            category = self.db.query(Category).filter(Category.id == category_id).first()
+            if not category:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Category {category_id} not found")
 
-        self.db.delete(category)
-        self.db.commit()
-        return f"Category {category_id} deleted."
+            self.db.delete(category)
+            self.db.commit()
+            return f"Category {category_id} deleted."
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error deleting category %s: %s", category_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while deleting the category. Please try again."
+            ) from e
 
 
 def get_category_controller(db: Session = Depends(get_db)):
