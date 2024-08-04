@@ -1,12 +1,17 @@
 """Controllers for managing user operations in the database related to User API endpoints."""
 
 from typing import List
+import logging
 from pydantic import UUID4
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status, Depends
 from app.core import Hash
 from app.infrastructure import get_db, User
-from app.schemas import UserUpdate as SchemaUserUpdate, User as SchemaUser
+from app.schemas import UserUpdate as SchemaUserUpdate, User as SchemaUser, UserShow as SchemaUserShow
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class UserController:
@@ -23,12 +28,12 @@ class UserController:
         """
         self.db = db
 
-    def get_all(self) -> List[User]:
+    def get_all(self) -> List[SchemaUserShow]:
         """
         Get all users.
 
         Returns:
-            List[User]: A list of user objects.
+            List[SchemaUserShow]: A list of user objects.
 
         Raises:
             HTTPException: Raised if no users are found.
@@ -38,7 +43,7 @@ class UserController:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No users found")
         return users
 
-    def create(self, request: SchemaUser) -> User:
+    def create(self, request: SchemaUser) -> SchemaUserShow:
         """
         Create a new user.
 
@@ -46,40 +51,47 @@ class UserController:
             request (UserCreate): The request containing details of the new user.
 
         Returns:
-            User: The newly created user object.
+            SchemaUserShow: The newly created user object.
 
         Raises:
             HTTPException: Raised if any required field is not provided or if a user with the same username already exists.
         """
-        required_fields = [request.name, request.username, request.email, request.password]
-        if not all(required_fields):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="All fields must be filled",
+        try:
+            required_fields = [request.name, request.username, request.email, request.password]
+            if not all(required_fields):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="All fields must be filled",
+                )
+
+            existing_user = self.db.query(User).filter_by(username=request.username).first()
+            if existing_user:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"A user with the username '{request.username}' already exists.",
+                )
+
+            new_user = User(
+                name=request.name,
+                username=request.username,
+                email=request.email,
+                password=Hash.bcrypt(request.password),
+                role=request.role,
             )
 
-        existing_user = self.db.query(User).filter_by(username=request.username).first()
-        if existing_user:
+            self.db.add(new_user)
+            self.db.commit()
+            self.db.refresh(new_user)
+
+            return new_user
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error creating user: %s", e)
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"A user with the username '{request.username}' already exists.",
-            )
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while creating the user. Please try again."
+            ) from e
 
-        new_user = User(
-            name=request.name,
-            username=request.username,
-            email=request.email,
-            password=Hash.bcrypt(request.password),
-            role=request.role,
-        )
-
-        self.db.add(new_user)
-        self.db.commit()
-        self.db.refresh(new_user)
-
-        return new_user
-
-    def show(self, user_id: UUID4) -> User:
+    def show(self, user_id: UUID4) -> SchemaUserShow:
         """
         Retrieve a user by user ID.
 
@@ -87,7 +99,7 @@ class UserController:
             user_id (UUID4): The ID of the user to retrieve.
 
         Returns:
-            User: The user corresponding to the provided ID.
+            SchemaUserShow: The user corresponding to the provided ID.
 
         Raises:
             HTTPException: Raised if the user with the provided ID is not found.
@@ -100,7 +112,7 @@ class UserController:
             )
         return user
 
-    def update(self, user_id: UUID4, request: SchemaUserUpdate) -> User:
+    def update(self, user_id: UUID4, request: SchemaUserUpdate) -> SchemaUserShow:
         """
         Update user information.
 
@@ -109,30 +121,37 @@ class UserController:
             request (UserUpdate): The updated user information.
 
         Returns:
-            User: The updated user information.
+            SchemaUserShow: The updated user information.
 
         Raises:
             HTTPException: Raised if the user with the provided ID is not found or if any field is left blank.
         """
-        user = self.db.query(User).filter(User.id == user_id).first()
-        if not user:
+        try:
+            user = self.db.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"User {user_id} not found",
+                )
+
+            if any(value == "" for value in request.model_dump(exclude_unset=True).values()):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="No field can be left blank",
+                )
+
+            for key, value in request.dict(exclude_unset=True).items():
+                setattr(user, key, value)
+
+            self.db.commit()
+            self.db.refresh(user)
+            return user
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error updating user %s: %s", user_id, e)
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User {user_id} not found",
-            )
-
-        if any(value == "" for value in request.model_dump(exclude_unset=True).values()):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No field can be left blank",
-            )
-
-        for key, value in request.dict(exclude_unset=True).items():
-            setattr(user, key, value)
-
-        self.db.commit()
-        self.db.refresh(user)
-        return user
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while updating the user. Please try again."
+            ) from e
 
     def reset_password(self, user_id: UUID4, password: str) -> User:
         """
@@ -148,15 +167,22 @@ class UserController:
         Raises:
             HTTPException: Raised if the user with the provided ID is not found.
         """
-        user = self.db.query(User).filter(User.id == user_id)
-        if not user.first():
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User {user_id} not found")
+        try:
+            user = self.db.query(User).filter(User.id == user_id)
+            if not user.first():
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User {user_id} not found")
 
-        user_dict = user.first().to_dict()
-        user_dict["password"] = Hash.bcrypt(password)
-        user.update(user_dict)
-        self.db.commit()
-        return user.first()
+            user_dict = user.first().to_dict()
+            user_dict["password"] = Hash.bcrypt(password)
+            user.update(user_dict)
+            self.db.commit()
+            return user.first()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error resetting password for user %s: %s", user_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while resetting the password. Please try again."
+            ) from e
 
     def delete(self, user_id: UUID4) -> str:
         """
@@ -171,13 +197,20 @@ class UserController:
         Raises:
             HTTPException: Raised if the user with the provided ID is not found.
         """
-        user = self.db.query(User).filter(User.id == user_id).first()
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User {user_id} not found")
+        try:
+            user = self.db.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User {user_id} not found")
 
-        self.db.delete(user)
-        self.db.commit()
-        return f"User {user_id} deleted."
+            self.db.delete(user)
+            self.db.commit()
+            return f"User {user_id} deleted."
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            logger.error("Error deleting user %s: %s", user_id, e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while deleting the user. Please try again."
+            ) from e
 
 
 def get_user_controller(db: Session = Depends(get_db)):

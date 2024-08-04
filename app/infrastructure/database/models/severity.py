@@ -1,6 +1,7 @@
 """Severity Model"""
 
-from sqlalchemy import Column, Integer, String
+import uuid
+from sqlalchemy import UUID, Column, DateTime, Integer, String, func
 from sqlalchemy.orm import relationship
 from app.infrastructure.database.base import Base
 
@@ -17,9 +18,12 @@ class Severity(Base):
 
     __tablename__ = "severity"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     level = Column(Integer, nullable=False, unique=True)
     description = Column(String, nullable=False)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     tickets = relationship("Ticket", back_populates="severity")
 
@@ -38,6 +42,8 @@ class Severity(Base):
             "id": str(self.id),
             "level": self.level,
             "description": self.description,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @classmethod
