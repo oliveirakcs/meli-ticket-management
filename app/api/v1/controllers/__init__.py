@@ -6,21 +6,25 @@ Imports:
     TicketController, get_ticket_controller from ticket_controller: Ticket management controller and its getter.
     SeverityController, get_severity_controller from severity_controller: Severity management controller and its getter.
     CategoryController, get_category_controller from category_controller: Category management controller and its getter.
+    SubcategoryController, get_subcategory_controller from subcategory_controller: Subcategory management controller and its getter.
 
 Classes:
     UserController: Manages user-related operations.
     TicketController: Manages ticket-related operations.
     SeverityController: Manages severity-related operations.
     CategoryController: Manages category-related operations.
+    SubcategoryController: Manages subcategory-related operations.
 
 Functions:
     get_user_controller: Returns an instance of UserController.
     get_ticket_controller: Returns an instance of TicketController.
     get_severity_controller: Returns an instance of SeverityController.
     get_category_controller: Returns an instance of CategoryController.
+    get_subcategory_controller: Returns an instance of SubcategoryController.
 """
 
 from .users_controller import UserController, get_user_controller
 from .ticket_controller import TicketController, get_ticket_controller
 from .severity_controller import SeverityController, get_severity_controller
 from .category_controller import CategoryController, get_category_controller
+from .subcategory_controller import SubcategoryController, get_subcategory_controller

@@ -3,6 +3,7 @@ Global fixtures for API testing.
 """
 
 import os
+from uuid import uuid4
 from dotenv import load_dotenv, find_dotenv
 import pytest
 from app.tests import create_client
@@ -118,7 +119,7 @@ def create_delete_severity(access_token):
     return response.json()
 
 
-@pytest.fixture(name="category", scope="session")
+@pytest.fixture(name="category", scope="function")
 def create_category(access_token):
     """
     Fixture to create a category for testing.
@@ -132,7 +133,7 @@ def create_category(access_token):
     response = client.post(
         "/api/v1/categories/",
         json={
-            "name": "Test Category",
+            "name": f"Test Category {uuid4()}",
             "parent_id": None,
         },
         headers={"Authorization": f"Bearer {access_token}"},
@@ -141,7 +142,7 @@ def create_category(access_token):
     return response.json()
 
 
-@pytest.fixture(name="category_to_delete", scope="session")
+@pytest.fixture(name="category_to_delete", scope="function")
 def create_delete_category(access_token):
     """
     Fixture to create a category intended for deletion testing.
@@ -155,9 +156,51 @@ def create_delete_category(access_token):
     response = client.post(
         "/api/v1/categories/",
         json={
-            "name": "Delete Category",
+            "name": f"Delete Category {uuid4()}",
             "parent_id": None,
         },
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+@pytest.fixture(name="subcategory", scope="function")
+def create_subcategory(access_token, category):
+    """
+    Fixture to create a subcategory for testing.
+
+    Args:
+        access_token (str): Access token for authorization.
+        category (dict): The parent category for the subcategory.
+
+    Returns:
+        dict: Data of the created subcategory.
+    """
+    response = client.post(
+        "/api/v1/subcategories/",
+        json={"name": f"Test Subcategory {uuid4()}", "category_id": category["id"]},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+@pytest.fixture(name="subcategory_to_delete", scope="function")
+def create_subcategory_to_delete(access_token, category):
+    """
+    Fixture to create a subcategory intended for deletion testing.
+
+    Args:
+        access_token (str): Access token for authorization.
+        category (dict): The parent category for the subcategory.
+
+    Returns:
+        dict: Data of the created subcategory for deletion.
+    """
+    response = client.post(
+        "/api/v1/subcategories/",
+        json={"name": f"Subcategory to Delete {uuid4()}", "category_id": category["id"]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 201

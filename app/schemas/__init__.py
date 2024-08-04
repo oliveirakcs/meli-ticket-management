@@ -5,6 +5,7 @@ from .user import User, UserId, UserPassword, UserShow, UserUpdate
 from .ticket import Ticket, TicketUpdate, TicketShow, TicketId
 from .severity import Severity, SeverityId, SeverityUpdate, SeverityShow
 from .category import Category, CategoryId, CategoryUpdate, CategoryShow
+from .subcategory import Subcategory, SubcategoryId, SubcategoryUpdate, SubcategoryShow
 
 __all__ = [
     "Category",
@@ -21,6 +22,10 @@ __all__ = [
     "SeverityUpdate",
     "SeverityShow",
     "SeverityId",
+    "Subcategory",
+    "SubcategoryUpdate",
+    "SubcategoryShow",
+    "SubcategoryId",
     "Token",
     "TokenData",
     "Ticket",
