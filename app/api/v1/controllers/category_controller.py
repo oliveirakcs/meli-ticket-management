@@ -55,6 +55,11 @@ class CategoryController:
         Raises:
             HTTPException: Raised if a category with the same name already exists.
         """
+        if not request.name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Category name is required.",
+            )
         try:
             existing_category = self.db.query(Category).filter_by(name=request.name).first()
             if existing_category:
@@ -63,7 +68,7 @@ class CategoryController:
                     detail=f"A category with name '{request.name}' already exists.",
                 )
 
-            new_category = Category(name=request.name, parent_id=request.parent_id)
+            new_category = Category(name=request.name)
 
             self.db.add(new_category)
             self.db.commit()

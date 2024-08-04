@@ -22,16 +22,12 @@ def test_create_category(access_token):
     """
     response = client.post(
         "/api/v1/categories/",
-        json={
-            "name": "New Category",
-            "parent_id": None,
-        },
+        json={"name": "New Category"},
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 201
     category_data = response.json()
     assert category_data["name"] == "New Category"
-    assert category_data["parent_id"] is None
 
 
 def test_create_duplicate_category(access_token, category):
@@ -48,10 +44,7 @@ def test_create_duplicate_category(access_token, category):
     """
     response = client.post(
         "/api/v1/categories/",
-        json={
-            "name": category["name"],
-            "parent_id": category["parent_id"],
-        },
+        json={"name": category["name"]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 409
@@ -67,10 +60,7 @@ def test_create_category_unauthorized():
     """
     response = client.post(
         "/api/v1/categories/",
-        json={
-            "name": "Unauthorized Category",
-            "parent_id": None,
-        },
+        json={"name": "Unauthorized Category"},
     )
     assert response.status_code == 401
 
@@ -84,14 +74,18 @@ def test_create_category_with_invalid_data(access_token):
 
     Test steps:
     1. Send a request to create a category with invalid data.
-    2. Verify the response status code, expecting 422 (Unprocessable Entity).
+    2. Verify the response status code, expecting 422 (Unprocessable Entity) or 400 (Bad Request).
     """
     response = client.post(
         "/api/v1/categories/",
-        json={
-            "name": "",
-            "parent_id": "invalid-uuid",
-        },
+        json={"name": 123},
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 422
+
+    response = client.post(
+        "/api/v1/categories/",
+        json={"name": ""},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 400

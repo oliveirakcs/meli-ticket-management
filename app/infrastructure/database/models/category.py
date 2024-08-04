@@ -1,7 +1,7 @@
 """Category Model"""
 
 import uuid
-from sqlalchemy import UUID, Column, String, ForeignKey
+from sqlalchemy import UUID, Column, DateTime, String, func
 from sqlalchemy.orm import relationship
 from app.infrastructure.database.base import Base
 
@@ -13,17 +13,19 @@ class Category(Base):
     Attributes:
         id (int): Primary key for the category.
         name (str): Name of the category.
-        parent_id (int): Optional foreign key linking to the parent category.
     """
 
     __tablename__ = "categories"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
-    parent_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
 
+    ticket_categories = relationship("TicketCategory", back_populates="category")
     subcategories = relationship("Subcategory", back_populates="category")
-    tickets = relationship("Ticket", back_populates="category")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    ticket_categories = relationship("TicketCategory", back_populates="category")
 
     def __repr__(self):
         """Return a string representation of the Category instance."""
@@ -39,7 +41,8 @@ class Category(Base):
         return {
             "id": str(self.id),
             "name": self.name,
-            "parent_id": str(self.parent_id) if self.parent_id else None,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @classmethod
@@ -53,4 +56,4 @@ class Category(Base):
         Returns:
             Category: An instance of the Category model.
         """
-        return cls(name=data["name"], parent_id=data.get("parent_id"))
+        return cls(name=data["name"])

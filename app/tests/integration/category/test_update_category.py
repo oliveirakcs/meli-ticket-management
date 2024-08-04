@@ -24,7 +24,7 @@ def test_update_all_fields_category(access_token, category):
     updated_name = "Updated Category Name"
     response = client.patch(
         f"/api/v1/categories/{category['id']}",
-        json={"name": updated_name, "parent_id": category["parent_id"]},
+        json={"name": updated_name},
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 200
@@ -69,7 +69,7 @@ def test_update_non_existing_category(access_token):
     """
     response = client.patch(
         "/api/v1/categories/non_existing_id",
-        json={"name": "Updated Category Name", "parent_id": None},
+        json={"name": "Updated Category Name"},
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 422

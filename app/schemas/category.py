@@ -10,14 +10,12 @@ class Category(BaseModel):
     """Category Base Model"""
 
     name: str
-    parent_id: Optional[UUID4] = None
 
 
 class CategoryUpdate(BaseModel):
     """Category Update Model"""
 
     name: Optional[str] = None
-    parent_id: Optional[UUID4] = None
 
 
 class CategoryShow(Category):

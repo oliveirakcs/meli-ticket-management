@@ -189,7 +189,6 @@ def create_subcategories():
                 ]
             )
 
-        # Subcategories for Database Management
         if database_management_category:
             subcategories.extend(
                 [
@@ -222,7 +221,6 @@ def create_subcategories():
                     Subcategory(name="Interaction Design", category_id=user_experience_category.id),
                 ]
             )
-
         db.add_all(subcategories)
         db.commit()
         print("Subcategories created!")

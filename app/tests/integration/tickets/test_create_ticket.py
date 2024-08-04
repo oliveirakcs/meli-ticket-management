@@ -13,48 +13,27 @@ def test_create_duplicate_ticket(access_token, ticket):
 
     Args:
         access_token (str): Access token for authorization.
+        ticket (Ticket): A Ticket object fixture.
 
     Test steps:
     1. Attempt to create a ticket with the same title as an existing one.
     2. Verify the response status code, expecting 409 (Conflict).
     """
 
-    severity_response = client.get(
-        "/api/v1/severities/",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert severity_response.status_code == 200, "Failed to retrieve severities"
-    severities = severity_response.json()
-    severity = severities[3] if severities else None
+    ticket_severity = ticket["severity"]
+    severity_id = ticket_severity["id"]
+    ticket_categories = ticket["categories"]
 
-    category_response = client.get(
-        "/api/v1/categories/",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert category_response.status_code == 200, "Failed to retrieve categories"
-    categories = category_response.json()
-    category = categories[3] if categories else None
-
-    subcategory_response = client.get(
-        f"/api/v1/subcategories/?category_id={category['id']}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert subcategory_response.status_code == 200, "Failed to retrieve subcategories"
-    subcategories = subcategory_response.json()
-    subcategory = subcategories[3] if subcategories else None
-
-    assert severity is not None, "No severity found"
-    assert category is not None, "No category found"
-    assert subcategory is not None, "No subcategory found"
-
-    ticket_title = ticket["title"]
+    category_ids = [category["id"] for category in ticket_categories]
+    subcategory_ids = [subcategory["id"] for category in ticket_categories for subcategory in category["subcategories"]]
 
     ticket_data = {
-        "title": ticket_title,
+        "title": ticket["title"],
         "description": "This is a test ticket.",
-        "severity_id": severity["id"],
-        "category_id": category["id"],
-        "subcategory_id": subcategory["id"],
+        "severity_id": severity_id,
+        "category_ids": category_ids,
+        "subcategory_ids": subcategory_ids,
+        "status": "aberto",
     }
 
     duplicate_response = client.post(
@@ -64,6 +43,7 @@ def test_create_duplicate_ticket(access_token, ticket):
     )
 
     assert duplicate_response.status_code == 409
+    assert duplicate_response.json()["detail"] == f"Ticket with title '{ticket['title']}' already exists."
 
 
 def test_create_ticket_unauthorized(severity, category, subcategory):
@@ -85,9 +65,9 @@ def test_create_ticket_unauthorized(severity, category, subcategory):
             "title": "Unauthorized Ticket",
             "description": "This is a test ticket without authorization.",
             "severity_id": severity["id"],
-            "category_id": category["id"],
-            "subcategory_id": subcategory["id"],
-            "status": "open",
+            "category_ids": [category["id"]],
+            "subcategory_ids": [subcategory["id"]],
+            "status": "aberto",
         },
     )
     assert response.status_code == 401
@@ -110,9 +90,9 @@ def test_create_ticket_with_invalid_data(access_token):
             "title": "",
             "description": "Invalid ticket due to missing title.",
             "severity_id": None,
-            "category_id": "invalid_uuid",
-            "subcategory_id": "invalid_uuid",
-            "status": "open",
+            "category_ids": ["invalid_uuid"],
+            "subcategory_ids": ["invalid_uuid"],
+            "status": "aberto",
         },
         headers={"Authorization": f"Bearer {access_token}"},
     )

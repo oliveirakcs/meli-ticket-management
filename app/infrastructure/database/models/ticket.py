@@ -1,7 +1,7 @@
 """Ticket Model"""
 
 import uuid
-from sqlalchemy import UUID, Column, String, Text, ForeignKey, TIMESTAMP, Enum as SAEnum
+from sqlalchemy import UUID, Column, DateTime, String, Text, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.infrastructure.database.base import Base
@@ -16,8 +16,6 @@ class Ticket(Base):
         id (UUID): Primary key for the ticket.
         title (str): Title of the ticket.
         description (str): Detailed description of the ticket issue.
-        category_id (UUID): Foreign key linking to the ticket's category.
-        subcategory_id (UUID): Foreign key linking to the ticket's subcategory.
         severity_id (UUID): Foreign key linking to the ticket's severity.
         status (TicketStatus): Status of the ticket (ABERTO, EM_PROGRESSO, RESOLVIDO).
         created_at (timestamp): Timestamp when the ticket was created.
@@ -29,15 +27,13 @@ class Ticket(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=False)
-    subcategory_id = Column(UUID(as_uuid=True), ForeignKey("subcategories.id"), nullable=True)
     severity_id = Column(UUID(as_uuid=True), ForeignKey("severity.id"), nullable=False)
     status = Column(SAEnum(TicketStatus), default=TicketStatus.ABERTO, nullable=False)
-    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    category = relationship("Category", back_populates="tickets")
-    subcategory = relationship("Subcategory", back_populates="tickets")
+    ticket_categories = relationship("TicketCategory", back_populates="ticket", cascade="all, delete-orphan")
+    ticket_subcategories = relationship("TicketSubcategory", back_populates="ticket")
     severity = relationship("Severity", back_populates="tickets")
 
     def __repr__(self):
@@ -55,12 +51,10 @@ class Ticket(Base):
             "id": str(self.id),
             "title": self.title,
             "description": self.description,
-            "category_id": str(self.category_id),
-            "subcategory_id": str(self.subcategory_id) if self.subcategory_id else None,
             "severity_id": str(self.severity_id),
             "status": self.status.value,
             "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @classmethod
@@ -77,8 +71,6 @@ class Ticket(Base):
         return cls(
             title=data["title"],
             description=data["description"],
-            category_id=data["category_id"],
-            subcategory_id=data.get("subcategory_id"),
             severity_id=data["severity_id"],
             status=TicketStatus(data.get("status", TicketStatus.ABERTO.value)),
         )

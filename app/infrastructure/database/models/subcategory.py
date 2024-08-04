@@ -1,7 +1,7 @@
 """Subcategory Model"""
 
 import uuid
-from sqlalchemy import UUID, Column, String, ForeignKey
+from sqlalchemy import UUID, Column, DateTime, String, ForeignKey, func
 from sqlalchemy.orm import relationship
 from app.infrastructure.database.base import Base
 
@@ -22,8 +22,11 @@ class Subcategory(Base):
     name = Column(String, nullable=False)
     category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=False)
 
+    ticket_subcategories = relationship("TicketSubcategory", back_populates="subcategory")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
     category = relationship("Category", back_populates="subcategories")
-    tickets = relationship("Ticket", back_populates="subcategory")
 
     def __repr__(self):
         """Return a string representation of the Subcategory instance."""
@@ -40,6 +43,8 @@ class Subcategory(Base):
             "id": str(self.id),
             "name": self.name,
             "category_id": str(self.category_id),
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @classmethod

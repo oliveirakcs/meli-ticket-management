@@ -64,7 +64,6 @@ def test_read_category_by_id(access_token, category):
     category_data = response.json()
     assert category_data["id"] == category["id"]
     assert category_data["name"] == category["name"]
-    assert category_data["parent_id"] == category["parent_id"]
 
 
 def test_read_all_categories_unauthorized():

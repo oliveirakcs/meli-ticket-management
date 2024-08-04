@@ -134,7 +134,6 @@ def create_category(access_token):
         "/api/v1/categories/",
         json={
             "name": f"Test Category {uuid4()}",
-            "parent_id": None,
         },
         headers={"Authorization": f"Bearer {access_token}"},
     )
@@ -157,7 +156,6 @@ def create_delete_category(access_token):
         "/api/v1/categories/",
         json={
             "name": f"Delete Category {uuid4()}",
-            "parent_id": None,
         },
         headers={"Authorization": f"Bearer {access_token}"},
     )
@@ -210,22 +208,21 @@ def create_subcategory_to_delete(access_token, category):
 @pytest.fixture(name="ticket", scope="function")
 def create_ticket(access_token):
     """
-    Fixture to create a ticket for testing.
+    Fixture to create a ticket using the API for testing.
 
     Args:
         access_token (str): Access token for authorization.
 
     Returns:
-        dict: Data of the created ticket.
+        dict: A dictionary containing the ticket data.
     """
-
     severity_response = client.get(
         "/api/v1/severities/",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert severity_response.status_code == 200
     severities = severity_response.json()
-    severity = severities[3] if severities else None
+    severity = next((s for s in severities if s["level"] != 1), severities[0])
 
     category_response = client.get(
         "/api/v1/categories/",
@@ -233,26 +230,17 @@ def create_ticket(access_token):
     )
     assert category_response.status_code == 200
     categories = category_response.json()
-    category = categories[3] if categories else None
 
-    subcategory_response = client.get(
-        f"/api/v1/subcategories/?category_id={category['id']}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert subcategory_response.status_code == 200
-    subcategories = subcategory_response.json()
-    subcategory = subcategories[3] if subcategories else None
-
-    assert severity is not None, "No severity found"
-    assert category is not None, "No category found"
-    assert subcategory is not None, "No subcategory found"
+    category = next((c for c in categories if len(c["subcategories"]) >= 2), categories[0])
+    category_id = category["id"]
+    subcategory_ids = [subcategory["id"] for subcategory in category["subcategories"][:2]]
 
     ticket_data = {
         "title": f"Test Ticket {uuid4()}",
         "description": "Test Ticket Description",
         "severity_id": severity["id"],
-        "category_id": category["id"],
-        "subcategory_id": subcategory["id"],
+        "category_ids": [category_id],
+        "subcategory_ids": subcategory_ids,
         "status": "aberto",
     }
 
@@ -261,6 +249,7 @@ def create_ticket(access_token):
         json=ticket_data,
         headers={"Authorization": f"Bearer {access_token}"},
     )
+
     assert response.status_code == 201
     return response.json()
 
@@ -268,25 +257,21 @@ def create_ticket(access_token):
 @pytest.fixture(name="ticket_to_delete", scope="function")
 def create_ticket_to_delete(access_token):
     """
-    Fixture to create a ticket intended for deletion testing.
+    Fixture to create a ticket specifically for deletion testing.
 
     Args:
         access_token (str): Access token for authorization.
-        severity (dict): The severity for the ticket.
-        category (dict): The category for the ticket.
-        subcategory (dict): The subcategory for the ticket.
 
     Returns:
-        dict: Data of the created ticket for deletion.
+        dict: A dictionary containing the ticket data to be deleted.
     """
-
     severity_response = client.get(
         "/api/v1/severities/",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert severity_response.status_code == 200
     severities = severity_response.json()
-    severity = severities[1] if severities else None
+    severity = next((s for s in severities if s["level"] != 1), severities[0])
 
     category_response = client.get(
         "/api/v1/categories/",
@@ -294,26 +279,17 @@ def create_ticket_to_delete(access_token):
     )
     assert category_response.status_code == 200
     categories = category_response.json()
-    category = categories[1] if categories else None
 
-    subcategory_response = client.get(
-        f"/api/v1/subcategories/?category_id={category['id']}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert subcategory_response.status_code == 200
-    subcategories = subcategory_response.json()
-    subcategory = subcategories[1] if subcategories else None
-
-    assert severity is not None, "No severity found"
-    assert category is not None, "No category found"
-    assert subcategory is not None, "No subcategory found"
+    category = next((c for c in categories if len(c["subcategories"]) >= 2), categories[0])
+    category_id = category["id"]
+    subcategory_ids = [subcategory["id"] for subcategory in category["subcategories"][:2]]
 
     ticket_data = {
-        "title": f"Test Ticket {uuid4()}",
-        "description": "Test Ticket Description",
+        "title": f"Test Ticket to Delete {uuid4()}",
+        "description": "Test Ticket Description for Deletion",
         "severity_id": severity["id"],
-        "category_id": category["id"],
-        "subcategory_id": subcategory["id"],
+        "category_ids": [category_id],
+        "subcategory_ids": subcategory_ids,
         "status": "aberto",
     }
 
@@ -322,5 +298,6 @@ def create_ticket_to_delete(access_token):
         json=ticket_data,
         headers={"Authorization": f"Bearer {access_token}"},
     )
+
     assert response.status_code == 201
     return response.json()

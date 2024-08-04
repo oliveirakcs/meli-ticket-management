@@ -162,6 +162,22 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
     Copie as variáveis de ambiente do arquivo .env.example para o novo arquivo .env.
     Preencha os valores adequados para cada variável de ambiente.
 
+3. Criação do venv:
+
+    Crie um ambiente virtual 
+    ```bash
+    python -m venv _venv
+    ```
+    e ative o venv.
+
+4. Instalação das dependencias no _venv:
+
+    Instale os requirements
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
 3. Instalação do Pre-Commit:
 
     Instale o pre-commit na pasta raiz do projeto para garantir a qualidade do código antes de cada commit.
