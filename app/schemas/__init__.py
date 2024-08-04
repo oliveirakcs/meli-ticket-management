@@ -2,6 +2,7 @@
 
 from .auth import Login, Token, TokenData
 from .user import User, UserId, UserPassword, UserShow, UserUpdate
+from .ticket import Ticket, TicketUpdate, TicketShow, TicketId
 
 __all__ = [
     "User",
@@ -12,4 +13,8 @@ __all__ = [
     "Login",
     "Token",
     "TokenData",
+    "Ticket",
+    "TicketUpdate",
+    "TicketShow",
+    "TicketId",
 ]

@@ -17,7 +17,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 )
 def get_all_users(
     controller: UserController = Depends(get_user_controller),
-    current_user: User = Security(get_current_active_user, scopes=["read"]),
+    current_user: User = Security(get_current_active_user, scopes=["admin"]),
 ):
     """
     Retrieve all users.
@@ -87,7 +87,9 @@ def delete_user(
 
 @router.get("/{user_id}", response_model=UserShow, status_code=status.HTTP_200_OK)
 def get_user(
-    user_id: UUID4, controller: UserController = Depends(get_user_controller), current_user: User = Security(get_current_active_user, scopes=["read"])
+    user_id: UUID4,
+    controller: UserController = Depends(get_user_controller),
+    current_user: User = Security(get_current_active_user, scopes=["admin"]),
 ):
     """
     Retrieve user by user ID.
@@ -115,7 +117,7 @@ def update_user(
     user_id: UUID4,
     request: UserUpdate,
     controller: UserController = Depends(get_user_controller),
-    current_user: User = Security(get_current_active_user, scopes=["manage"]),
+    current_user: User = Security(get_current_active_user, scopes=["admin"]),
 ):
     """
     Update user data.

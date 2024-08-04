@@ -1,6 +1,7 @@
 """Subcategory Model"""
 
-from sqlalchemy import Column, Integer, String, ForeignKey
+import uuid
+from sqlalchemy import UUID, Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.infrastructure.database.base import Base
 
@@ -17,9 +18,9 @@ class Subcategory(Base):
 
     __tablename__ = "subcategories"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
-    category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
+    category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=False)
 
     category = relationship("Category", back_populates="subcategories")
     tickets = relationship("Ticket", back_populates="subcategory")

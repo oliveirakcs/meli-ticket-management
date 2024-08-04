@@ -1,6 +1,7 @@
 """Severity Model"""
 
-from sqlalchemy import Column, Integer, String
+import uuid
+from sqlalchemy import UUID, Column, Integer, String
 from sqlalchemy.orm import relationship
 from app.infrastructure.database.base import Base
 
@@ -17,7 +18,7 @@ class Severity(Base):
 
     __tablename__ = "severity"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     level = Column(Integer, nullable=False, unique=True)
     description = Column(String, nullable=False)
 
