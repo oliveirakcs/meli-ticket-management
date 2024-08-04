@@ -1,5 +1,7 @@
-from pydantic import BaseModel, UUID4
+"""Subcategory Schemas"""
+
 from typing import Optional
+from pydantic import BaseModel, UUID4
 
 
 class Subcategory(BaseModel):

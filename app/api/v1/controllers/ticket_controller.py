@@ -90,6 +90,12 @@ class TicketController:
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail=f"Subcategory with ID '{request.subcategory_id}' not found.",
                     )
+            ticket = self.db.query(Ticket).filter(Ticket.title == request.title).first()
+            if ticket:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Ticket with title '{request.title}' already exists.",
+                )
 
             new_ticket = Ticket(
                 title=request.title,

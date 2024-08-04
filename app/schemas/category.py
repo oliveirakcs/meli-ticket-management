@@ -3,6 +3,8 @@
 from typing import Optional, List
 from pydantic import UUID4, BaseModel
 
+from app.schemas.subcategory import SubcategoryShow
+
 
 class Category(BaseModel):
     """Category Base Model"""
@@ -22,7 +24,7 @@ class CategoryShow(Category):
     """Category Show Model"""
 
     id: UUID4
-    subcategories: List[UUID4] = []
+    subcategories: Optional[List[SubcategoryShow]] = None
 
     class Config:
         """Config"""
