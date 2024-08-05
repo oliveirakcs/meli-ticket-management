@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchTickets, deleteTicket, generateComment } from '../services/api'; // Import the new API function
+import { fetchTickets, deleteTicket, generateComment } from '../services/api';
 import TicketCard from '../components/TicketCard';
 import CreateTicketModal from '../components/CreateTicketModal';
 import EditTicketModal from '../components/EditTicketModal';
@@ -200,10 +200,9 @@ const Home: React.FC = () => {
     setIsEditModalOpen(false);
   };
 
-  // Handle navigation from the hamburger menu
   const handleNavigation = (path: string) => {
     navigate(path);
-    setIsMenuOpen(false); // Close menu after navigation
+    setIsMenuOpen(false);
   };
 
   return (
@@ -215,7 +214,7 @@ const Home: React.FC = () => {
               className={`hamburger ${isMenuOpen ? 'open' : ''}`}
               onClick={() => setIsMenuOpen((prev) => !prev)}
             >
-              &#9776; {/* Hamburger Icon */}
+              &#9776;
             </button>
             {isMenuOpen && (
               <div className="menu">

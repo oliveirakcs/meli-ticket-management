@@ -1,4 +1,3 @@
-// src/pages/UsersPage.tsx
 import React from 'react';
 
 const UsersPage: React.FC = () => {
@@ -6,7 +5,6 @@ const UsersPage: React.FC = () => {
     <div>
       <h1>Users</h1>
       <p>This is the Users page.</p>
-      {/* Add content for managing users here */}
     </div>
   );
 };

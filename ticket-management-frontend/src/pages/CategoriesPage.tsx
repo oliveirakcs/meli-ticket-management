@@ -1,4 +1,3 @@
-// src/pages/CategoriesPage.tsx
 import React from 'react';
 
 const CategoriesPage: React.FC = () => {
@@ -6,7 +5,6 @@ const CategoriesPage: React.FC = () => {
     <div>
       <h1>Categories</h1>
       <p>This is the Categories page.</p>
-      {/* Add content for managing categories here */}
     </div>
   );
 };

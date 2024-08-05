@@ -1,4 +1,3 @@
-// src/pages/SeveritiesPage.tsx
 import React from 'react';
 
 const SeveritiesPage: React.FC = () => {
@@ -6,7 +5,6 @@ const SeveritiesPage: React.FC = () => {
     <div>
       <h1>Severities</h1>
       <p>This is the Severities page.</p>
-      {/* Add content for managing severities here */}
     </div>
   );
 };

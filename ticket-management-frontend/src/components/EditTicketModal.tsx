@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchSeverities, updateTicket } from '../services/api'; // Importa a função de atualização
+import { fetchSeverities, updateTicket } from '../services/api';
 import { Ticket, Category, Subcategory, Severity } from '../types/ticketTypes';
 import SelectCategoryModal from './SelectCategoryModal';
 
@@ -29,7 +29,7 @@ const EditTicketModal: React.FC<EditTicketModalProps> = ({
   );
   const [severities, setSeverities] = useState<Severity[]>([]);
   const [selectedSeverity, setSelectedSeverity] = useState(ticket.severity.id);
-  const [selectedStatus, setSelectedStatus] = useState(ticket.status); // State for status
+  const [selectedStatus, setSelectedStatus] = useState(ticket.status);
   const [isSelectCategoryModalOpen, setIsSelectCategoryModalOpen] = useState(false);
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
 
@@ -150,7 +150,6 @@ const EditTicketModal: React.FC<EditTicketModalProps> = ({
             </select>
           </div>
           
-          {/* New status select dropdown */}
           <div>
             <label>Status:</label>
             <select

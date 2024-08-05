@@ -1,5 +1,3 @@
-// components/SelectCategoryModal.tsx
-
 import React, { useState, useEffect } from 'react';
 import { fetchCategories, fetchSubcategories } from '../services/api';
 import { Category, Subcategory } from '../types/ticketTypes';
