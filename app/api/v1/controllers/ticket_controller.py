@@ -8,9 +8,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status, Depends
 from app.infrastructure import get_db, Ticket, Category, Subcategory, Severity, TicketSubcategory, TicketCategory
 from app.schemas import TicketUpdate as SchemaTicketUpdate, TicketShow as SchemaTicketShow, Ticket as SchemaTicket, SeverityShow as SchemaSeverity
+from app.scripts import External
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+JSONPLACEHOLDER_URL = "https://jsonplaceholder.typicode.com"
 
 
 class TicketController:
@@ -307,6 +310,8 @@ class TicketController:
             ],
             created_at=ticket.created_at,
             updated_at=ticket.updated_at,
+            comment=ticket.comment,
+            comment_user=ticket.comment_user,
         )
 
         return ticket_data
@@ -344,6 +349,40 @@ class TicketController:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="An error occurred while deleting the ticket. Please try again.",
             ) from e
+
+    def add_comment_to_ticket(self, ticket_id: UUID4) -> dict:
+        """
+        Add a comment from JSONPlaceholder to a ticket.
+
+        Args:
+            ticket_id (UUID4): The ID of the ticket to add a comment to.
+
+        Returns:
+            dict: A dictionary confirming the addition of the comment.
+
+        Raises:
+            HTTPException: If there's an issue fetching comments or updating the ticket.
+        """
+        try:
+            comment_data = External.fetch_random_comment()
+            comment_text = comment_data["comment_text"]
+            comment_user = comment_data["comment_user"]
+
+            ticket = self.db.query(Ticket).filter(Ticket.id == ticket_id).first()
+            if not ticket:
+                raise HTTPException(status_code=404, detail="Ticket not found.")
+
+            ticket.comment = comment_text
+            ticket.comment_user = comment_user
+            self.db.commit()
+            self.db.refresh(ticket)
+
+            return {"ticket_id": str(ticket_id), "comment": comment_text, "comment_user": comment_user}
+
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Error adding comment to ticket: %s", e)
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 def get_ticket_controller(db: Session = Depends(get_db)):

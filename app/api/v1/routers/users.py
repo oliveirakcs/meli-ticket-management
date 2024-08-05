@@ -168,3 +168,22 @@ def reset_password(
     """
     password = request.password
     return controller.reset_password(user_id, password)
+
+
+@router.post(
+    "/create_random_user",
+    response_model=UserShow,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_random_user(
+    controller: UserController = Depends(get_user_controller),
+    current_user: User = Security(get_current_active_user, scopes=["admin"]),
+):
+    """
+    Create a random user using data from an external API.
+
+    Returns:
+        dict: A dictionary with user information.
+    """
+    user = controller.create_random_user()
+    return user

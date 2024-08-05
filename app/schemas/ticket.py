@@ -17,6 +17,8 @@ class Ticket(BaseModel):
     subcategory_ids: Optional[List[UUID4]] = None
     severity_id: UUID4
     status: TicketStatus = TicketStatus.ABERTO
+    comment: Optional[str] = None
+    comment_user: Optional[str] = None
 
 
 class TicketUpdate(BaseModel):
@@ -28,6 +30,8 @@ class TicketUpdate(BaseModel):
     subcategory_ids: Optional[List[UUID4]] = None
     severity_id: Optional[UUID4] = None
     status: Optional[TicketStatus] = None
+    comment: Optional[str] = None
+    comment_user: Optional[str] = None
 
 
 class TicketShow(BaseModel):
@@ -39,6 +43,8 @@ class TicketShow(BaseModel):
     categories: List[CategoryShow]
     severity: SeverityShow
     status: TicketStatus
+    comment: Optional[str] = None
+    comment_user: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

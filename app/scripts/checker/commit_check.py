@@ -1,7 +1,5 @@
 """
-This module provides a PylintChecker class that runs pylint on the app
-directory and checks the resulting score against a specified threshold.
-If the score is below the threshold, it exits with an error code.
+A script to run pylint on the app directory and check the score.
 """
 
 import subprocess

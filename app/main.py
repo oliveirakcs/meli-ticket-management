@@ -1,10 +1,5 @@
 """
 Main API script for Meli Ticket Manager.
-
-This module initializes and configures the FastAPI application, including the setup
-of middleware, routing, and initial database records. It ensures the necessary
-elements like the sysadmin user, severities, categories, and subcategories are
-created if they do not exist in the database.
 """
 
 from fastapi import FastAPI

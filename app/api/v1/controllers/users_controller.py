@@ -9,6 +9,7 @@ from fastapi import HTTPException, status, Depends
 from app.core import Hash
 from app.infrastructure import get_db, User
 from app.schemas import UserUpdate as SchemaUserUpdate, User as SchemaUser, UserShow as SchemaUserShow
+from app.scripts import External
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -211,6 +212,47 @@ class UserController:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while deleting the user. Please try again."
             ) from e
+
+    def create_random_user(self) -> dict:
+        """
+        Create a random user using data from an external API.
+
+        Returns:
+            dict: A dictionary confirming the creation of the user.
+
+        Raises:
+            HTTPException: If there's an issue creating the user.
+        """
+        try:
+            user_data = External.fetch_random_user()
+
+            existing_user = self.db.query(User).filter(User.email == user_data["email"]).first()
+            if existing_user:
+                raise HTTPException(status_code=409, detail="User with this email already exists.")
+
+            new_user = User(
+                name=user_data["name"],
+                email=user_data["email"],
+                username=user_data["username"],
+                password=Hash.bcrypt("defaultpassword"),
+                active=True,
+                role="user",
+            )
+
+            self.db.add(new_user)
+            self.db.commit()
+            self.db.refresh(new_user)
+
+            logger.info("Created a random user: %s", new_user)
+            return new_user.to_dict()
+
+        except HTTPException as e:
+            logger.error("Error creating random user: %s", e)
+            raise e
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Error creating random user: %s", e)
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 def get_user_controller(db: Session = Depends(get_db)):

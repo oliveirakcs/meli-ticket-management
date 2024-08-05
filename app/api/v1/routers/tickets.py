@@ -138,3 +138,29 @@ def update_ticket(
     """
     updated_ticket = controller.update(ticket_id, request)
     return updated_ticket
+
+
+@router.post(
+    "/add/{ticket_id}",
+    status_code=status.HTTP_200_OK,
+)
+def add_comment(
+    ticket_id: UUID4,
+    controller: TicketController = Depends(get_ticket_controller),
+    current_user=Security(get_current_active_user, scopes=["admin"]),
+):
+    """
+    Add a comment to a ticket using JSONPlaceholder API.
+
+    Parameters:
+    - ticket_id (UUID4): The ID of the ticket to add a comment to.
+    - controller (CommentController): The comment controller instance.
+    - _: The current user (unused).
+
+    Returns:
+    - dict: Confirmation of the added comment.
+
+    Raises:
+    - HTTPException: If there's an issue adding the comment.
+    """
+    return controller.add_comment_to_ticket(ticket_id)
