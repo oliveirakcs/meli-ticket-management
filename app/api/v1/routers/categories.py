@@ -17,7 +17,7 @@ router = APIRouter(prefix="/categories", tags=["Categories"])
 )
 def get_all_categories(
     controller: CategoryController = Depends(get_category_controller),
-    current_user: CategoryShow = Security(get_current_active_user, scopes=["admin"]),
+    current_user: CategoryShow = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve all categories.
@@ -91,7 +91,7 @@ def delete_category(
 def get_category(
     category_id: UUID4,
     controller: CategoryController = Depends(get_category_controller),
-    current_user: CategoryShow = Security(get_current_active_user, scopes=["admin"]),
+    current_user: CategoryShow = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve category by category ID.

@@ -17,7 +17,7 @@ router = APIRouter(prefix="/tickets", tags=["Tickets"])
 )
 def get_all_tickets(
     controller: TicketController = Depends(get_ticket_controller),
-    current_user: Ticket = Security(get_current_active_user, scopes=["admin"]),
+    current_user: Ticket = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve all tickets.
@@ -45,7 +45,7 @@ def get_all_tickets(
 def create_ticket(
     request: Ticket,
     controller: TicketController = Depends(get_ticket_controller),
-    current_user: Ticket = Security(get_current_active_user, scopes=["admin"]),
+    current_user: Ticket = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Create a new ticket.
@@ -91,7 +91,7 @@ def delete_ticket(
 def get_ticket(
     ticket_id: UUID4,
     controller: TicketController = Depends(get_ticket_controller),
-    current_user: Ticket = Security(get_current_active_user, scopes=["admin"]),
+    current_user: Ticket = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve ticket by ticket ID.
@@ -119,7 +119,7 @@ def update_ticket(
     ticket_id: UUID4,
     request: TicketUpdate,
     controller: TicketController = Depends(get_ticket_controller),
-    current_user: Ticket = Security(get_current_active_user, scopes=["admin"]),
+    current_user: Ticket = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Update ticket data.
