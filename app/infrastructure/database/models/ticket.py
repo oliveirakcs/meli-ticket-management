@@ -29,9 +29,10 @@ class Ticket(Base):
     description = Column(Text, nullable=True)
     severity_id = Column(UUID(as_uuid=True), ForeignKey("severity.id"), nullable=False)
     status = Column(SAEnum(TicketStatus), default=TicketStatus.ABERTO, nullable=False)
+    comment = Column(Text, nullable=True)
+    comment_user = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
     ticket_categories = relationship("TicketCategory", back_populates="ticket", cascade="all, delete-orphan")
     ticket_subcategories = relationship("TicketSubcategory", back_populates="ticket")
     severity = relationship("Severity", back_populates="tickets")
@@ -53,6 +54,8 @@ class Ticket(Base):
             "description": self.description,
             "severity_id": str(self.severity_id),
             "status": self.status.value,
+            "comment": self.comment,
+            "comment_user": self.comment_user,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
