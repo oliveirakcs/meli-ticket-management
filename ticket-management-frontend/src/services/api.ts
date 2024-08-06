@@ -23,6 +23,25 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (
+      error.response &&
+      error.response.status === 401
+    ) {
+      localStorage.removeItem('access_token');
+      window.location.href = '/login';
+
+      alert('Sessão expirou, faça novamente o login.');
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 const handleApiError = (error: any, message: string) => {
   if (axios.isAxiosError(error)) {
     console.error(`API Error: ${error.message}`);
