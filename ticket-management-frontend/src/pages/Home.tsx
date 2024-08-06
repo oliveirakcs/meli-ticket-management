@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchTickets, deleteTicket, generateComment } from '../services/api';
-import CreateTicketModal from '../components/CreateTicketModal';
-import EditTicketModal from '../components/EditTicketModal';
-import { capitalizeWords } from '../utils/utils';
-import mercadoLivreLogo from '../icons/mercado-livre.svg';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchTickets, deleteTicket, generateComment } from "../services/api";
+import CreateTicketModal from "../components/CreateTicketModal";
+import EditTicketModal from "../components/EditTicketModal";
+import { capitalizeWords } from "../utils/utils";
+import mercadoLivreLogo from "../icons/mercado-livre.svg";
 interface Category {
   id: string;
   name: string;
@@ -37,9 +37,9 @@ export interface Ticket {
 }
 
 const severityColors: { [key: number]: string } = {
-  4: '#248c3c',
-  3: '#a67e07',
-  2: '#dc3545',
+  4: "#248c3c",
+  3: "#a67e07",
+  2: "#dc3545",
 };
 
 const Home: React.FC = () => {
@@ -50,23 +50,25 @@ const Home: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const detailsRef = useRef<HTMLDivElement>(null);
-  const userScopes = JSON.parse(localStorage.getItem('user_scopes') || '[]');
+  const userScopes = JSON.parse(localStorage.getItem("user_scopes") || "[]");
 
   useEffect(() => {
     const loadTickets = async () => {
       try {
         const ticketData = await fetchTickets();
-        
+
         ticketData.sort((a: Ticket, b: Ticket) => {
           if (b.severity.level !== a.severity.level) {
             return b.severity.level - a.severity.level;
           }
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
         });
-        
+
         setTickets(ticketData);
       } catch (error) {
-        console.error('Erro ao buscar tickets:', error);
+        console.error("Erro ao buscar tickets:", error);
       }
     };
 
@@ -75,7 +77,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setSelectedTicket(null);
         setIsEditModalOpen(false);
       }
@@ -91,12 +93,12 @@ const Home: React.FC = () => {
       }
     };
 
-    document.addEventListener('keydown', handleEscKey);
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("keydown", handleEscKey);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener('keydown', handleEscKey);
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("keydown", handleEscKey);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -114,7 +116,7 @@ const Home: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm(
-      'Tem certeza que deseja deletar este ticket?'
+      "Tem certeza que deseja deletar este ticket?"
     );
     if (confirmDelete) {
       try {
@@ -123,10 +125,10 @@ const Home: React.FC = () => {
           prevTickets.filter((ticket) => ticket.id !== id)
         );
         setSelectedTicket(null);
-        alert('Ticket deletado com sucesso!');
+        alert("Ticket deletado com sucesso!");
       } catch (error) {
-        console.error('Erro ao deletar ticket:', error);
-        alert('Erro ao deletar ticket.');
+        console.error("Erro ao deletar ticket:", error);
+        alert("Erro ao deletar ticket.");
       }
     }
   };
@@ -147,18 +149,18 @@ const Home: React.FC = () => {
         )
       );
 
-      alert('Comentário gerado com sucesso!');
+      alert("Comentário gerado com sucesso!");
     } catch (error) {
-      console.error('Erro ao gerar comentário:', error);
-      alert('Erro ao gerar comentário.');
+      console.error("Erro ao gerar comentário:", error);
+      alert("Erro ao gerar comentário.");
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role');
-    localStorage.removeItem('user_scopes');
-    navigate('/login');
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user_role");
+    localStorage.removeItem("user_scopes");
+    navigate("/login");
   };
 
   const handleCreateTicket = () => {
@@ -176,14 +178,16 @@ const Home: React.FC = () => {
   const handleTicketCreated = async () => {
     setIsCreateModalOpen(false);
     const ticketData = await fetchTickets();
-    
+
     ticketData.sort((a: Ticket, b: Ticket) => {
       if (b.severity.level !== a.severity.level) {
         return b.severity.level - a.severity.level;
       }
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     });
-    
+
     setTickets(ticketData);
   };
 
@@ -211,45 +215,45 @@ const Home: React.FC = () => {
   return (
     <div
       style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '20px',
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "20px",
       }}
     >
       <div
         style={{
-          marginBottom: '20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%',
-          marginTop: '10px',
+          marginBottom: "20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+          marginTop: "10px",
         }}
       >
         <div
           style={{
             flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            paddingLeft: '80px',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            paddingLeft: "80px",
           }}
         >
           <img
             src={mercadoLivreLogo}
             alt="Mercado Livre"
             style={{
-              width: '150px',
-              height: 'auto',
+              width: "150px",
+              height: "auto",
             }}
           />
           <span
             style={{
-              color: '#2d3277',
-              fontSize: '24px',
-              fontFamily: 'Arial, sans-serif',
-              marginTop: '10px',
-              textAlign: 'center',
+              color: "#2d3277",
+              fontSize: "24px",
+              fontFamily: "Arial, sans-serif",
+              marginTop: "10px",
+              textAlign: "center",
             }}
           >
             Ticket Management App
@@ -258,182 +262,188 @@ const Home: React.FC = () => {
         <button
           onClick={handleLogout}
           style={{
-            backgroundColor: '#f44336',
-            color: 'white',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s ease',
-            marginLeft: 'auto', // Push the button to the right
+            backgroundColor: "#f44336",
+            color: "white",
+            padding: "10px 20px",
+            borderRadius: "5px",
+            border: "none",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+            marginLeft: "auto",
           }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = '#d32f2f')
+            (e.currentTarget.style.backgroundColor = "#d32f2f")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = '#f44336')
+            (e.currentTarget.style.backgroundColor = "#f44336")
           }
         >
           Logout
         </button>
       </div>
 
-
-      
       <div
         style={{
-          padding: '10px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginTop: '5px',
-          position: 'relative',
+          padding: "10px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginTop: "5px",
+          position: "relative",
         }}
       >
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            width: '100%',
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
           }}
         >
-          {userScopes.includes('admin') && (
+          {userScopes.includes("admin") && (
             <div>
               <button
                 style={{
-                  backgroundColor: isMenuOpen ? '#0056b3' : '#007bff',
-                  border: 'none',
-                  width: '60px',
-                  height: '50px',
-                  borderRadius: '5px',
-                  color: 'white',
-                  cursor: 'pointer',
-                  transition: 'transform 0.3s ease, background-color 0.3s ease',
-                  transform: isMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                  fontSize: '24px',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                  outline: 'none',
-                  position: 'relative',
-                  marginBottom: '10px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  backgroundColor: isMenuOpen ? "#0056b3" : "#007bff",
+                  border: "none",
+                  width: "60px",
+                  height: "50px",
+                  borderRadius: "5px",
+                  color: "white",
+                  cursor: "pointer",
+                  transition: "transform 0.3s ease, background-color 0.3s ease",
+                  transform: isMenuOpen ? "rotate(90deg)" : "rotate(0deg)",
+                  fontSize: "24px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+                  outline: "none",
+                  position: "relative",
+                  marginBottom: "10px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
                 onClick={() => setIsMenuOpen((prev) => !prev)}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0056b3')}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#0056b3")
+                }
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = isMenuOpen ? '#0056b3' : '#007bff')
+                  (e.currentTarget.style.backgroundColor = isMenuOpen
+                    ? "#0056b3"
+                    : "#007bff")
                 }
               >
                 <span
                   style={{
-                    display: 'block',
-                    width: '25px',
-                    height: '3px',
-                    backgroundColor: 'white',
-                    margin: '2px auto',
-                    transition: 'all 0.3s',
-                    transform: isMenuOpen ? 'rotate(-45deg) translate(-5px, 5px)' : 'rotate(0)',
+                    display: "block",
+                    width: "25px",
+                    height: "3px",
+                    backgroundColor: "white",
+                    margin: "2px auto",
+                    transition: "all 0.3s",
+                    transform: isMenuOpen
+                      ? "rotate(-45deg) translate(-5px, 5px)"
+                      : "rotate(0)",
                   }}
                 />
                 <span
                   style={{
-                    display: 'block',
-                    width: '25px',
-                    height: '3px',
-                    backgroundColor: 'white',
-                    margin: '2px auto',
-                    transition: 'all 0.3s',
+                    display: "block",
+                    width: "25px",
+                    height: "3px",
+                    backgroundColor: "white",
+                    margin: "2px auto",
+                    transition: "all 0.3s",
                     opacity: isMenuOpen ? 0 : 1,
                   }}
                 />
                 <span
                   style={{
-                    display: 'block',
-                    width: '25px',
-                    height: '3px',
-                    backgroundColor: 'white',
-                    margin: '2px auto',
-                    transition: 'all 0.3s',
-                    transform: isMenuOpen ? 'rotate(45deg) translate(-5px, -5px)' : 'rotate(0)',
+                    display: "block",
+                    width: "25px",
+                    height: "3px",
+                    backgroundColor: "white",
+                    margin: "2px auto",
+                    transition: "all 0.3s",
+                    transform: isMenuOpen
+                      ? "rotate(45deg) translate(-5px, -5px)"
+                      : "rotate(0)",
                   }}
                 />
               </button>
               {isMenuOpen && (
                 <div
                   style={{
-                    position: 'absolute',
-                    backgroundColor: '#007bff',
-                    padding: '20px',
-                    marginTop: '10px',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                    position: "absolute",
+                    backgroundColor: "#007bff",
+                    padding: "20px",
+                    marginTop: "10px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
                     zIndex: 1000,
                   }}
                 >
-                  <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                  <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
                     <li
                       style={{
-                        padding: '10px',
-                        marginBottom: '5px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.3s',
-                        backgroundColor: '#0056b3',
-                        color: 'white',
+                        padding: "10px",
+                        marginBottom: "5px",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s",
+                        backgroundColor: "#0056b3",
+                        color: "white",
                       }}
-                      onClick={() => handleNavigation('/categories')}
+                      onClick={() => handleNavigation("/categories")}
                       onMouseEnter={(e) =>
                         ((e.target as HTMLElement).style.backgroundColor =
-                          '#004494')
+                          "#004494")
                       }
                       onMouseLeave={(e) =>
                         ((e.target as HTMLElement).style.backgroundColor =
-                          '#0056b3')
+                          "#0056b3")
                       }
                     >
                       Categorias
                     </li>
                     <li
                       style={{
-                        padding: '10px',
-                        marginBottom: '5px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.3s',
-                        backgroundColor: '#0056b3',
-                        color: 'white',
+                        padding: "10px",
+                        marginBottom: "5px",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s",
+                        backgroundColor: "#0056b3",
+                        color: "white",
                       }}
-                      onClick={() => handleNavigation('/severities')}
+                      onClick={() => handleNavigation("/severities")}
                       onMouseEnter={(e) =>
                         ((e.target as HTMLElement).style.backgroundColor =
-                          '#004494')
+                          "#004494")
                       }
                       onMouseLeave={(e) =>
                         ((e.target as HTMLElement).style.backgroundColor =
-                          '#0056b3')
+                          "#0056b3")
                       }
                     >
                       Severities
                     </li>
                     <li
                       style={{
-                        padding: '10px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.3s',
-                        backgroundColor: '#0056b3',
-                        color: 'white',
+                        padding: "10px",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s",
+                        backgroundColor: "#0056b3",
+                        color: "white",
                       }}
-                      onClick={() => handleNavigation('/users')}
+                      onClick={() => handleNavigation("/users")}
                       onMouseEnter={(e) =>
                         ((e.target as HTMLElement).style.backgroundColor =
-                          '#004494')
+                          "#004494")
                       }
                       onMouseLeave={(e) =>
                         ((e.target as HTMLElement).style.backgroundColor =
-                          '#0056b3')
+                          "#0056b3")
                       }
                     >
                       Usuários
@@ -448,30 +458,29 @@ const Home: React.FC = () => {
               flex: 1,
             }}
           ></div>
-          
         </div>
 
-        <h1 style={{ color: '#333', textAlign: 'center' }}>Tickets</h1>
+        <h1 style={{ color: "#333", textAlign: "center" }}>Tickets</h1>
 
         <button
           onClick={handleCreateTicket}
           style={{
-            backgroundColor: '#007bff',
-            color: 'white',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            marginBottom: '20px',
-            display: 'block',
-            marginLeft: 'auto',
-            transition: 'background-color 0.3s ease',
+            backgroundColor: "#007bff",
+            color: "white",
+            padding: "10px 20px",
+            borderRadius: "5px",
+            border: "none",
+            cursor: "pointer",
+            marginBottom: "20px",
+            display: "block",
+            marginLeft: "auto",
+            transition: "background-color 0.3s ease",
           }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = '#0056b3')
+            (e.currentTarget.style.backgroundColor = "#0056b3")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = '#007bff')
+            (e.currentTarget.style.backgroundColor = "#007bff")
           }
         >
           Criar Ticket
@@ -479,11 +488,11 @@ const Home: React.FC = () => {
 
         <div
           style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '20px',
-            justifyContent: 'center',
-            maxWidth: '1000px',
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "20px",
+            justifyContent: "center",
+            maxWidth: "1000px",
           }}
         >
           {tickets.map((ticket) => (
@@ -492,37 +501,37 @@ const Home: React.FC = () => {
               onClick={() => handleCardClickEnhanced(ticket)}
               style={{
                 border: `2px solid ${severityColors[ticket.severity.level]}`,
-                backgroundColor: '#fff',
-                borderRadius: '5px',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                padding: '15px',
-                width: '250px',
-                cursor: 'pointer',
-                transition: 'transform 0.3s ease',
+                backgroundColor: "#fff",
+                borderRadius: "5px",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                padding: "15px",
+                width: "250px",
+                cursor: "pointer",
+                transition: "transform 0.3s ease",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = 'translateY(-5px)')
+                (e.currentTarget.style.transform = "translateY(-5px)")
               }
               onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = 'translateY(0)')
+                (e.currentTarget.style.transform = "translateY(0)")
               }
             >
               <h2
                 style={{
-                  margin: '0',
-                  color: '#555',
-                  fontSize: '1.2em',
+                  margin: "0",
+                  color: "#555",
+                  fontSize: "1.2em",
                 }}
               >
                 {ticket.title}
               </h2>
               <p
                 style={{
-                  margin: '5px 0',
-                  color: '#777',
+                  margin: "5px 0",
+                  color: "#777",
                 }}
               >
-                Severity:{' '}
+                Severity:{" "}
                 <span
                   style={{
                     color: severityColors[ticket.severity.level],
@@ -533,16 +542,16 @@ const Home: React.FC = () => {
               </p>
               <p
                 style={{
-                  margin: '5px 0',
-                  color: '#777',
+                  margin: "5px 0",
+                  color: "#777",
                 }}
               >
                 Criado em: {new Date(ticket.created_at).toLocaleString()}
               </p>
               <p
                 style={{
-                  margin: '5px 0',
-                  color: '#777',
+                  margin: "5px 0",
+                  color: "#777",
                 }}
               >
                 Status: {capitalizeWords(ticket.status)}
@@ -554,17 +563,17 @@ const Home: React.FC = () => {
         {selectedTicket && (
           <div
             style={{
-              marginTop: '30px',
-              width: '80%',
-              backgroundColor: '#ffffff',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              padding: '20px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              marginTop: "30px",
+              width: "80%",
+              backgroundColor: "#ffffff",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              padding: "20px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
             }}
             ref={detailsRef}
           >
-            <h2 style={{ color: '#333' }}>Detalhes do Ticket</h2>
+            <h2 style={{ color: "#333" }}>Detalhes do Ticket</h2>
             <p>
               <strong>Título:</strong> {selectedTicket.title}
             </p>
@@ -572,7 +581,7 @@ const Home: React.FC = () => {
               <strong>Descrição:</strong> {selectedTicket.description}
             </p>
             <p>
-              <strong>Severidade:</strong>{' '}
+              <strong>Severidade:</strong>{" "}
               <span
                 style={{ color: severityColors[selectedTicket.severity.level] }}
               >
@@ -588,21 +597,21 @@ const Home: React.FC = () => {
                   <strong>Comentário:</strong> {selectedTicket.comment}
                 </p>
                 <p>
-                  <strong>Usuário do Comentário:</strong>{' '}
+                  <strong>Usuário do Comentário:</strong>{" "}
                   {selectedTicket.comment_user}
                 </p>
               </>
             )}
             <p>
-              <strong>Criado em:</strong>{' '}
+              <strong>Criado em:</strong>{" "}
               {new Date(selectedTicket.created_at).toLocaleString()}
             </p>
             <p>
-              <strong>Atualizado em:</strong>{' '}
+              <strong>Atualizado em:</strong>{" "}
               {new Date(selectedTicket.updated_at).toLocaleString()}
             </p>
 
-            <h3 style={{ color: '#333' }}>Categorias e Subcategorias:</h3>
+            <h3 style={{ color: "#333" }}>Categorias e Subcategorias:</h3>
             {selectedTicket.categories.map((category) => (
               <div key={category.id}>
                 <p>
@@ -618,51 +627,51 @@ const Home: React.FC = () => {
 
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'center',
-                marginTop: '20px',
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "20px",
               }}
             >
               <button
                 onClick={() => handleEdit(selectedTicket.id)}
                 style={{
-                  marginRight: '10px',
-                  padding: '8px 16px',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.3s ease',
+                  marginRight: "10px",
+                  padding: "8px 16px",
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s ease",
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#0056b3')
+                  (e.currentTarget.style.backgroundColor = "#0056b3")
                 }
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#007bff')
+                  (e.currentTarget.style.backgroundColor = "#007bff")
                 }
               >
                 Editar
-              </button>{' '}
-              {userScopes.includes('admin') && (
+              </button>{" "}
+              {userScopes.includes("admin") && (
                 <>
                   <button
                     onClick={() => handleDelete(selectedTicket.id)}
                     style={{
-                      marginRight: '10px',
-                      padding: '8px 16px',
-                      backgroundColor: '#f44336',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.3s ease',
+                      marginRight: "10px",
+                      padding: "8px 16px",
+                      backgroundColor: "#f44336",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.backgroundColor = '#d32f2f')
+                      (e.currentTarget.style.backgroundColor = "#d32f2f")
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor = '#f44336')
+                      (e.currentTarget.style.backgroundColor = "#f44336")
                     }
                   >
                     Deletar
@@ -670,19 +679,19 @@ const Home: React.FC = () => {
                   <button
                     onClick={() => handleGenerateComment(selectedTicket.id)}
                     style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#007bff',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.3s ease',
+                      padding: "8px 16px",
+                      backgroundColor: "#007bff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.backgroundColor = '#0056b3')
+                      (e.currentTarget.style.backgroundColor = "#0056b3")
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor = '#007bff')
+                      (e.currentTarget.style.backgroundColor = "#007bff")
                     }
                   >
                     Gerar Comentário

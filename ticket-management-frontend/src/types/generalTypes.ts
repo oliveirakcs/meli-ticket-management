@@ -30,18 +30,15 @@ export interface Ticket {
   updated_at: string;
 }
 
-// userTypes.ts
-
 export interface User {
-  id: string; // UUID is represented as a string
+  id: string;
   name: string;
   username: string;
   email: string;
-  password?: string; // Password is optional for update
+  password?: string;
   role: string;
 }
 
-// Omit 'id' and 'password' for user creation
 export type UserCreation = Omit<User, 'id' | 'password'> & { password: string };
 
 export interface Severity {

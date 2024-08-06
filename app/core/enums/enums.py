@@ -1,12 +1,7 @@
 """
 Module containing enumerations used across the application.
 
-This module provides enumerations to represent various constants and choices
-that are used throughout the application. Enumerations help in improving code
-readability, maintainability, and also provide validation out of the box.
 
-Classes:
-    DwRecordStatus: Enumeration to represent the archived status of Data Warehouses.
 """
 
 from enum import Enum

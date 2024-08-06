@@ -1,12 +1,17 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import PrivateRoute from './components/PrivateRoute';
-import SeveritiesPage from './pages/SeveritiesPage';
-import UsersPage from './pages/UsersPage';
-import CategoriesPage from './pages/CategoriesPage';
-import './styles.css';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import PrivateRoute from "./components/PrivateRoute";
+import SeveritiesPage from "./pages/SeveritiesPage";
+import UsersPage from "./pages/UsersPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import "./styles.css";
 
 function App() {
   return (

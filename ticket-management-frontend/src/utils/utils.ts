@@ -1,4 +1,3 @@
-// utils/stringUtils.ts
 export const capitalizeWords = (str: string) => {
     return str
       .split(' ')
