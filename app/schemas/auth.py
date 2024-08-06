@@ -1,15 +1,5 @@
 """
 Authentication Schemas
-
-This module defines the Pydantic models used for handling authentication
-within the application. These models include schemas for login credentials,
-authentication tokens, and the data contained within those tokens.
-
-Classes:
-    Login: Represents the login credentials required for authentication.
-    Token: Represents the authentication token issued upon successful login.
-    TokenData: Represents the data stored within the authentication token,
-        including user ID, username, role, and scopes/permissions.
 """
 
 import uuid

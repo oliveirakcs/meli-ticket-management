@@ -17,7 +17,7 @@ router = APIRouter(prefix="/severities", tags=["Severities"])
 )
 def get_all_severities(
     controller: SeverityController = Depends(get_severity_controller),
-    current_user: SeverityShow = Security(get_current_active_user, scopes=["admin"]),
+    current_user: SeverityShow = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve all severity levels.
@@ -91,7 +91,7 @@ def delete_severity(
 def get_severity(
     severity_id: UUID4,
     controller: SeverityController = Depends(get_severity_controller),
-    current_user: SeverityShow = Security(get_current_active_user, scopes=["admin"]),
+    current_user: SeverityShow = Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve severity level by severity ID.

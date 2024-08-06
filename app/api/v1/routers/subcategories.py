@@ -13,7 +13,7 @@ router = APIRouter(prefix="/subcategories", tags=["Subcategories"])
 @router.get("/", response_model=List[SubcategoryShow], status_code=status.HTTP_200_OK)
 def get_all_subcategories(
     controller: SubcategoryController = Depends(get_subcategory_controller),
-    current_user=Security(get_current_active_user, scopes=["admin"]),
+    current_user=Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve all subcategories.
@@ -52,7 +52,7 @@ def create_subcategory(
 def get_subcategory(
     subcategory_id: UUID4,
     controller: SubcategoryController = Depends(get_subcategory_controller),
-    current_user=Security(get_current_active_user, scopes=["admin"]),
+    current_user=Security(get_current_active_user, scopes=["read"]),
 ):
     """
     Retrieve a subcategory by ID.
@@ -66,6 +66,26 @@ def get_subcategory(
     - SubcategoryShow: The subcategory object with restricted information.
     """
     return controller.show(subcategory_id)
+
+
+@router.get("/{category_id}/show", response_model=List[SubcategoryShow], status_code=status.HTTP_200_OK)
+def get_subcategory_by_category(
+    category_id: UUID4,
+    controller: SubcategoryController = Depends(get_subcategory_controller),
+    current_user=Security(get_current_active_user, scopes=["read"]),
+):
+    """
+    Retrieve a subcategory by category ID.
+
+    Parameters:
+    - category_id (UUID4): The ID of the category to retrieve subcategories.
+    - controller (SubcategoryController): The subcategory controller instance.
+    - current_user: The current user for authorization.
+
+    Returns:
+    - List[SubcategoryShow]: A list of subcategory objects with restricted information.
+    """
+    return controller.show_by_category(category_id)
 
 
 @router.patch("/{subcategory_id}", response_model=SubcategoryShow, status_code=status.HTTP_200_OK)

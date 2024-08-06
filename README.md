@@ -4,18 +4,9 @@
 
 Este projeto é uma aplicação CRUD para gerenciamento de tickets, que inclui categorias, subcategorias e severidade, além de integração com uma API externa e uso de containers Docker.
 
-## Sprint Goal
+## Goal
 
 Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração de API externa e containerização usando Docker, seguindo boas práticas de desenvolvimento e documentação.
-
-## Tecnologias Utilizadas
-
-- Linguagem de Programação: Python
-- Banco de Dados: PostgreSQL
-- Containerização: Docker
-- Frontend: React
-
-## Funcionalidades
 
 - **CRUD de Tickets**
   - Criação, leitura, atualização e exclusão de tickets.
@@ -30,6 +21,13 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
 
 - **Integração com API Externa**
   - Utilização da JSONPlaceholder API para simular chamadas de API.
+
+## Tecnologias Utilizadas
+
+- Linguagem de Programação: Python
+- Banco de Dados: PostgreSQL
+- Containerização: Docker
+- Frontend: React
 
 ## Boas Práticas de Desenvolvimento
 
@@ -237,3 +235,156 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
 
     PGAdmin: http://localhost:5050
     O PGAdmin pode ser acessado neste link para gerenciar e visualizar o banco de dados PostgreSQL
+  
+
+## Funcionalidades
+
+### Gerenciamento de Tickets
+- **Criação, Edição e Exclusão de Tickets:** Permite que os usuários criem, atualizem e removam tickets facilmente, com validações para garantir a consistência dos dados.
+- **Associação de Categorias e Subcategorias:** Cada ticket pode ser associado a categorias e subcategorias específicas, permitindo uma melhor organização e filtragem.
+- **Validação de Severidade:** Implementa regras para validar níveis de severidade dos tickets, garantindo que as requisições mais urgentes sejam destacadas e tratadas adequadamente.
+
+### Gestão de Categorias e Subcategorias
+- **CRUD de Categorias e Subcategorias:** Oferece uma interface para criar, editar, excluir e visualizar categorias e subcategorias, com suporte a hierarquias aninhadas.
+- **Visualização de Estruturas de Categorias:** Os usuários podem expandir e colapsar categorias para explorar a estrutura e detalhes das subcategorias.
+
+### Gerenciamento de Usuários
+- **CRUD de Usuários:** Possibilita o gerenciamento de usuários, incluindo criação, edição, exclusão e visualização de perfis de usuários com informações detalhadas.
+- **Criação de Usuários Aleatórios:** Funcionalidade para gerar usuários aleatórios via API, facilitando o preenchimento e teste do sistema.
+
+### Interface do Usuário
+- **Painel Interativo:** A aplicação inclui um painel intuitivo e responsivo para navegação e gerenciamento de todos os componentes do sistema.
+- **Filtros e Pesquisa:** Funcionalidade para pesquisar e filtrar tickets e usuários rapidamente.
+- **Notificações e Alertas:** Informações relevantes, como erros ou operações bem-sucedidas, são comunicadas aos usuários por meio de alertas visuais.
+
+### Funcionalidades para Usuários Sysadmin
+
+Os usuários com role de sysadmin têm acesso total ao sistema, permitindo-lhes realizar operações de criação, leitura, atualização e exclusão (CRUD) em todas as áreas do sistema:
+
+- **CRUD de Severidades:** Permite gerenciar os níveis de severidade dos tickets, garantindo que os usuários possam categorizar adequadamente a urgência e a importância dos tickets.
+
+- **CRUD de Tickets:** Os sysadmins podem criar, visualizar, atualizar e deletar tickets, assim como gerenciar as associações de tickets com categorias e subcategorias.
+
+- **CRUD de Usuários:** Permite a criação, edição e exclusão de usuários no sistema. Além disso, os sysadmins podem gerar usuários aleatórios através da integração com a API externa.
+
+- **CRUD de Categorias e Subcategorias:** Os sysadmins têm o poder de gerenciar toda a hierarquia de categorias e subcategorias, permitindo uma organização eficaz dos tickets.
+
+- **Interação com Comentários:** Os usuários podem adicionar comentários aos tickets, com comentários gerados aleatoriamente por meio da integração com a API externa, facilitando discussões sobre cada ticket.
+
+### Funcionalidades para Usuários Comuns
+
+Os usuários com role de user, têm acesso limitado ao sistema, focado no uso prático dos tickets:
+
+- **Criação e Edição de Tickets:** Usuários comuns podem criar novos tickets e editar os tickets que eles criaram. Isso inclui associar tickets a categorias e subcategorias e escolher níveis de severidade apropriados.
+
+- **JSONPlaceholder API:** A aplicação utiliza a API JSONPlaceholder para simular operações externas, incluindo:
+
+  - **Criação de Usuário Aleatório:** Utiliza dados fictícios para gerar usuários aleatórios, permitindo testes e demonstrações sem a necessidade de inserção manual de dados.
+
+  - **Geração de Comentários em Tickets:** Enriquecendo o fluxo de trabalho dos tickets com comentários, simulando interações de usuários.
+
+### Segurança e Autenticação
+- **Controle de Acesso:** Implementação de camadas de segurança para controlar o acesso às funcionalidades com base em permissões de usuário.
+
+### Experiência do Usuário
+- **Design Responsivo:** O frontend é projetado para se adaptar a diferentes tamanhos de tela.
+
+### Integração com Infraestrutura
+- **Docker e Docker Compose:** Utilização de containers Docker para facilitar o desenvolvimento, testes e implantação, garantindo ambientes consistentes.
+- **Integração com PostgreSQL:** O sistema utiliza o PostgreSQL como backend para gerenciamento de dados.
+
+### Suporte e Manutenção
+- **Testes Automatizados:** Implementação de testes unitários e de integração para garantir a confiabilidade do sistema.
+
+## Métricas - Datadog e New Relic
+
+### 1. Métricas do Painel de Controle do Datadog
+
+#### Métricas de Desempenho da Aplicação
+- **Latência de Requisição:** 
+  - Medir o tempo de resposta da aplicação para as requisições de API.
+  - Ajuda a identificar endpoints lentos que podem afetar a experiência do usuário.
+
+- **Taxa de Erro:** 
+  - Acompanhar a porcentagem de requisições que resultam em erros.
+  - Facilita a identificação e resolução rápida de problemas na aplicação.
+
+- **Uso de CPU e Memória:** 
+  - Monitorar os recursos do sistema para garantir que a aplicação funcione de forma eficiente.
+  - Evitar gargalos de desempenho.
+
+- **Desempenho de Consultas ao Banco de Dados:** 
+  - Medir o tempo de execução das consultas ao banco de dados.
+  - Identificar consultas lentas que podem impactar o desempenho da aplicação.
+
+#### Métricas de Experiência do Usuário
+- **Tempo de Carregamento de Página:** 
+  - Acompanhar o tempo de carregamento das páginas do ponto de vista do usuário.
+  - Esta métrica ajuda a otimizar o desempenho do frontend.
+
+- **Engajamento do Usuário:** 
+  - Monitorar atividades do usuário, como o número de logins, sessões de usuários e ações realizadas.
+  - Ajuda a entender como os usuários estão interagindo com a aplicação.
+
+- **Taxa de Rejeição:** 
+  - Medir a porcentagem de usuários que saem da aplicação após visualizar apenas uma página.
+  - Uma alta taxa de rejeição pode indicar problemas de usabilidade ou conteúdo irrelevante.
+
+#### Métricas de Insights para Suporte
+- **Volume de Tickets:** 
+  - Acompanhar o número de tickets de suporte criados ao longo do tempo.
+  - Ajuda a entender a carga de trabalho da equipe de suporte e identificar horários de pico.
+
+- **Tempo de Resolução de Tickets:** 
+  - Medir o tempo médio para resolver tickets de suporte.
+  - Esta métrica é crucial para avaliar a eficiência da equipe de suporte.
+
+- **Problemas Comuns de Suporte:** 
+  - Identificar os problemas mais comuns relatados pelos usuários.
+  - Ajuda a priorizar correções de bugs e melhorias de funcionalidades.
+
+- **Feedback e Avaliações de Usuários:** 
+  - Coletar e analisar feedbacks e avaliações dos usuários sobre interações de suporte.
+  - Medir a satisfação do usuário.
+
+### 2. Métricas de Monitoramento do New Relic
+
+#### Métricas de Saúde da Aplicação
+- **Apdex Score:** 
+  - Medir a satisfação do usuário com base nos tempos de resposta da aplicação.
+  - Fornece uma visão geral do desempenho da aplicação e da experiência do usuário.
+
+- **Rastros de Transação:** 
+  - Analisar rastros de transação detalhados para identificar gargalos e otimizar o desempenho da aplicação.
+
+- **Análise de Erros:** 
+  - Monitorar taxas de erros e detalhes para identificar e resolver rapidamente problemas da aplicação.
+
+- **Mapa de Serviços:** 
+  - Visualizar a arquitetura da aplicação e as interações entre diferentes serviços.
+  - Garantir operações fluidas.
+
+#### Métricas de Infraestrutura
+- **Monitoramento da Saúde do Servidor:** 
+  - Acompanhar a saúde e o desempenho dos servidores que hospedam a aplicação.
+  - Inclui uso de CPU, memória, disco e desempenho de rede.
+
+- **Alertas e Notificações:** 
+  - Configurar alertas para problemas críticos, como altas taxas de erro, tempos de resposta lentos ou indisponibilidades do servidor.
+  - Garantir respostas e resoluções rápidas.
+
+- **Monitoramento de Serviços em Nuvem:** 
+  - Monitorar o desempenho e a disponibilidade dos serviços em nuvem utilizados pela aplicação, como bancos de dados, armazenamento e serviços de mensagens.
+
+#### Métricas de Comportamento do Usuário
+- **Rastros de Sessão:** 
+  - Acompanhar sessões de usuários para analisar o comportamento do usuário.
+  - Identificar funcionalidades populares e detectar possíveis problemas de usabilidade.
+
+- **Taxas de Conversão:** 
+  - Medir as taxas de conversão para ações chave na aplicação, como criação de conta ou submissão de tickets.
+  - Avaliar a eficácia da jornada do usuário.
+
+- **Análise de Caminhos do Usuário:** 
+  - Analisar os caminhos comuns percorridos pelos usuários dentro da aplicação.
+  - Identificar possíveis pontos de atrito e otimizar a experiência do usuário.

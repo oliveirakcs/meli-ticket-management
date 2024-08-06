@@ -92,6 +92,28 @@ class SubcategoryController:
             )
         return subcategory
 
+    def show_by_category(self, category_id: UUID4) -> List[SchemaSubcategoryShow]:
+        """
+        Retrieve subcategories by category ID.
+
+        Args:
+            category_id (UUID4): The ID of the category.
+
+        Returns:
+            List[SchemaSubcategoryShow]: A list of subcategory objects.
+
+        Raises:
+            HTTPException: If the category is not found.
+        """
+
+        subcategories = self.db.query(Subcategory).filter(Subcategory.category_id == category_id).all()
+        if not subcategories:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Category {category_id} not found",
+            )
+        return subcategories
+
     def update(self, subcategory_id: UUID4, request: SchemaSubcategoryUpdate) -> SchemaSubcategoryShow:
         """
         Update an existing subcategory.
