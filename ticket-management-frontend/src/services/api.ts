@@ -32,6 +32,74 @@ const handleApiError = (error: any, message: string) => {
   throw new Error(message);
 };
 
+export const login = async (username: string, password: string) => {
+  const loginData = new URLSearchParams();
+  loginData.append('grant_type', 'password');
+  loginData.append('username', username);
+  loginData.append('password', password);
+  loginData.append('scope', '');
+  loginData.append('client_id', 'string');
+  loginData.append('client_secret', 'string');
+
+  try {
+    const response = await api.post('/api/v1/login/', loginData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao fazer login');
+  }
+};
+
+// Users
+export const fetchUsers = async () => {
+  try {
+    const response = await api.get('/api/v1/users');
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao buscar usuários');
+  }
+};
+
+export const createUser = async (userData: any) => {
+  try {
+    const response = await api.post('/api/v1/users', userData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao criar usuário');
+  }
+};
+
+export const updateUser = async (id: string, userData: any) => {
+  try {
+    const response = await api.patch(`/api/v1/users/${id}`, userData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao atualizar usuário');
+  }
+};
+
+export const deleteUser = async (id: string) => {
+  try {
+    const response = await api.delete(`/api/v1/users/?user_id=${id}`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao deletar usuário');
+  }
+};
+
+export const createRandomUser = async () => {
+  try {
+    const response = await api.post('/api/v1/users/create_random_user');
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao criar usuário aleatório');
+  }
+}
+
 // Tickets
 export const fetchTickets = async () => {
   try {
@@ -97,8 +165,45 @@ export const fetchCategories = async () => {
   }
 };
 
+export const createCategory = async (categoryData: any) => {
+  try {
+    const response = await api.post('/api/v1/categories', categoryData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao criar categoria');
+  }
+};
+
+export const updateCategory = async (id: string, categoryData: any) => {
+  try {
+    const response = await api.patch(`/api/v1/categories/${id}`, categoryData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao atualizar categoria');
+  }
+};
+
+export const deleteCategory = async (id: string) => {
+  try {
+    const response = await api.delete(`/api/v1/categories/?category_id=${id}`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao deletar categoria');
+  }
+};
+
 // Subcategories
-export const fetchSubcategories = async (categoryId: string) => {
+export const fetchSubcategories = async () => {
+  try {
+    const response = await api.get('/api/v1/subcategories');
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao buscar subcategorias');
+  }
+};
+
+// Subcategories
+export const fetchSubcategoriesByCategory = async (categoryId: string) => {
   try {
     const response = await api.get(`/api/v1/subcategories/${categoryId}/show`);
     return response.data;
@@ -108,12 +213,71 @@ export const fetchSubcategories = async (categoryId: string) => {
   }
 };
 
+
+export const createSubcategory = async (subcategoryData: any) => {
+  try {
+    const response = await api.post('/api/v1/subcategories', subcategoryData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao criar subcategoria');
+  }
+};
+
+export const updateSubcategory = async (id: string, subcategoryData: any) => {
+  try {
+    const { name } = subcategoryData;
+
+    const dataToUpdate = { name };
+    const response = await api.patch(`/api/v1/subcategories/${id}`, dataToUpdate);
+    
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao atualizar subcategoria');
+  }
+};
+
+export const deleteSubcategory = async (id: string) => {
+  try {
+    const response = await api.delete(`/api/v1/subcategories/${id}`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao deletar subcategoria');
+  }
+};
+
 // Severities
 export const fetchSeverities = async () => {
   try {
     const response = await api.get('/api/v1/severities');
     return response.data;
   } catch (error) {
-    handleApiError(error, 'Erro ao buscar severidades');
+    handleApiError(error, 'Erro ao buscar Severities');
+  }
+};
+
+export const createSeverity = async (severityData: any) => {
+  try {
+    const response = await api.post('/api/v1/severities', severityData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao criar severidade');
+  }
+};
+
+export const updateSeverity = async (id: string, severityData: any) => {
+  try {
+    const response = await api.patch(`/api/v1/severities/${id}`, severityData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao atualizar severidade');
+  }
+};
+
+export const deleteSeverity = async (id: string) => {
+  try {
+    const response = await api.delete(`/api/v1/severities/?severity_id=${id}`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Erro ao deletar severidade');
   }
 };

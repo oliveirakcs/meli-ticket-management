@@ -6,7 +6,6 @@ import PrivateRoute from './components/PrivateRoute';
 import SeveritiesPage from './pages/SeveritiesPage';
 import UsersPage from './pages/UsersPage';
 import CategoriesPage from './pages/CategoriesPage';
-import SubcategoriesPage from './pages/SubcategoriesPage';
 import './styles.css';
 
 function App() {
@@ -47,14 +46,7 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route
-            path="/subcategories"
-            element={
-              <PrivateRoute>
-                <SubcategoriesPage />
-              </PrivateRoute>
-            }
-          />
+
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

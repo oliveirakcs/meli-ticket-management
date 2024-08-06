@@ -234,7 +234,7 @@ class UserController:
                 name=user_data["name"],
                 email=user_data["email"],
                 username=user_data["username"],
-                password=Hash.bcrypt("defaultpassword"),
+                password=Hash.bcrypt("password"),
                 active=True,
                 role="user",
             )
