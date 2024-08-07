@@ -35,6 +35,7 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
 - **SOLID, DRY, KISS**: Princípios aplicados ao código.
 - **Testes**: Testes unitários e de integração para garantir a qualidade.
 - **CI/CD**: GitHub Actions para automação de builds e testes.
+- **Documentação**: Todas as funções criadas nesse projeto estão devidamente explicadas em suas Docstrings.
 
 ## Tasks
 
