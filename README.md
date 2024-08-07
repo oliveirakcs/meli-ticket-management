@@ -267,7 +267,7 @@ Este documento fornece as instruções para configurar o ambiente de desenvolvim
 
     Este comando irá compilar o aplicativo para o diretório build. O build será otimizado para melhor performance e estará pronto para ser implementado.
 
-## Acesso
+### Acesso
 
     API: http://localhost:1201/docs
     A API estará disponível no endereço acima, onde você pode interagir com os endpoints do projeto.
@@ -334,6 +334,365 @@ Os usuários com role de user, têm acesso limitado ao sistema, focado no uso pr
 
 ### Suporte e Manutenção
 - **Testes Automatizados:** Implementação de testes unitários e de integração para garantir a confiabilidade do sistema.
+
+
+## API Usage Examples
+
+Abaixo estão exemplos de como interagir com a API do Meli Ticket Management System. Certifique-se de incluir o token de autenticação no cabeçalho de cada solicitação.
+
+### Autenticação
+
+Antes de fazer requisições à API, você precisa se autenticar e obter um token de acesso. O token deve ser incluído no cabeçalho de cada requisição.
+
+Exemplo de cabeçalho:
+
+```http
+Authorization: Bearer <your_access_token>
+```
+
+### Tickets
+
+#### Listar Todos os Tickets
+
+- **Endpoint:** GET /tickets/
+- **Authorization:** Required (Scope: read)
+
+```bash
+
+curl -X GET "http://localhost:1201/tickets/" -H "Authorization: Bearer <your_access_token>"
+```
+
+- **Response:**
+
+```bash
+[
+    {
+        "id": "a9d8f7ea-b0e7-4f3a-a0f8-c3d34ef8d5a1",
+        "title": "Sample Ticket",
+        "description": "This is a sample ticket description",
+        "categories": [
+            {
+                "id": "c0f4cfea-7b15-4c5a-bb90-c6b2f891d86a",
+                "name": "Category Name"
+            }
+        ],
+        "severity": {
+            "id": "d2a2baf3-6d44-4b5d-93e3-ffdf5d4a0e8e",
+            "level": 2,
+            "description": "Medium severity"
+        },
+        "status": "ABERTO",
+        "comment": "No comments yet",
+        "created_at": "2024-08-07T14:32:30.123456",
+        "updated_at": null
+    }
+]
+```
+
+#### Criar um Novo Ticket
+
+- **Endpoint:** POST /tickets/
+- **Authorization:** Required (Scope: read)
+
+```bash
+
+curl -X POST "http://localhost:1201/tickets/" \
+-H "Authorization: Bearer <your_access_token>" \
+-H "Content-Type: application/json" \
+-d '{
+    "title": "New Ticket",
+    "description": "Description of the new ticket",
+    "category_ids": ["c0f4cfea-7b15-4c5a-bb90-c6b2f891d86a"],
+    "severity_id": "d2a2baf3-6d44-4b5d-93e3-ffdf5d4a0e8e",
+    "status": "ABERTO"
+}'
+```
+
+- **Response:**
+
+```bash
+{
+{
+    "id": "e0f3a5f2-4b5e-4c7a-92e5-c3f8b0f7e5a1",
+    "title": "New Ticket",
+    "description": "Description of the new ticket",
+    "categories": [
+        {
+            "id": "c0f4cfea-7b15-4c5a-bb90-c6b2f891d86a",
+            "name": "Category Name"
+        }
+    ],
+    "severity": {
+        "id": "d2a2baf3-6d44-4b5d-93e3-ffdf5d4a0e8e",
+        "level": 2,
+        "description": "Medium severity"
+    },
+    "status": "ABERTO",
+    "comment": null,
+    "created_at": "2024-08-07T14:45:30.123456",
+    "updated_at": null
+}
+```
+
+#### Atualizar Ticket
+
+- **Endpoint:** PATCH /tickets/{ticket_id}
+- **Authorization:** Required (Scope: read)
+
+```bash
+
+curl -X PATCH "http://localhost:1201/tickets/{ticket_id}" \
+-H "Authorization: Bearer <your_access_token>" \
+-H "Content-Type: application/json" \
+-d '{
+    "title": "Updated Ticket Title",
+    "status": "EM_PROGRESSO"
+}'
+```
+
+- **Response:**
+
+```bash
+
+{{
+    "id": "e0f3a5f2-4b5e-4c7a-92e5-c3f8b0f7e5a1",
+    "title": "Updated Ticket Title",
+    "description": "Description of the new ticket",
+    "categories": [
+        {
+            "id": "c0f4cfea-7b15-4c5a-bb90-c6b2f891d86a",
+            "name": "Category Name"
+        }
+    ],
+    "severity": {
+        "id": "d2a2baf3-6d44-4b5d-93e3-ffdf5d4a0e8e",
+        "level": 2,
+        "description": "Medium severity"
+    },
+    "status": "EM_PROGRESSO",
+    "comment": null,
+    "created_at": "2024-08-07T14:45:30.123456",
+    "updated_at": "2024-08-07T15:00:00.123456"
+}
+```
+
+#### Deletar Ticket
+
+Endpoint: DELETE /tickets/{ticket_id}
+Authorization: Required (Scope: admin)
+
+bash
+
+curl -X DELETE "http://localhost:1201/tickets/{ticket_id}" \
+-H "Authorization: Bearer <your_access_token>"
+
+- **Response:** HTTP 202 Accepted
+
+#### Adicionar Comentário ao Ticket
+
+- **Endpoint:** POST /tickets/add/{ticket_id}
+- **Authorization:** Required (Scope: admin)
+
+```bash
+
+curl -X POST "http://localhost:1201/tickets/add/{ticket_id}" \
+-H "Authorization: Bearer <your_access_token>"
+```
+
+- **Response:**
+
+```bash
+    {
+        "message": "Comment added successfully",
+        "comment_id": "f3a2b5c7-3e4d-45b6-8c7e-1b8f0f9d7a2b"
+    }
+```
+
+### Usuários
+
+#### Criar um Usuário Aleatório
+
+- **Endpoint:** POST `/users/create_random_user`
+- **Authorization:** Required (Scope: `admin`)
+
+```bash
+curl -X POST "http://localhost:1201/users/create_random_user" \
+-H "Authorization: Bearer <your_access_token>"
+```
+
+
+- **Response:**
+
+```bash
+
+{
+    "id": "f0a2b3c4-d5e6-7f8g-9h0i-1j2k3l4m5n6o",
+    "name": "John Doe",
+    "username": "johndoe",
+    "email": "johndoe@example.com",
+    "role": "user"
+}
+
+```
+
+### Categorias
+
+#### Criar Nova Categoria com Subcategorias
+
+- **Endpoint:** POST `/categories/`
+- **Authorization:** Required (Scope: `admin`)
+
+```bash
+curl -X POST "http://localhost:1201/categories/" \
+-H "Authorization: Bearer <your_access_token>" \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "Network",
+    "subcategories": [
+        {
+            "name": "Routers"
+        },
+        {
+            "name": "Switches"
+        },
+        {
+            "name": "Access Points"
+        }
+    ]
+}'
+```
+- **Response:**
+
+```bash
+{
+    "id": "f1g2h3i4-j5k6-7l8m-9n0o-1p2q3r4s5t6u",
+    "name": "Network",
+    "subcategories": [
+        {
+            "id": "a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p",
+            "name": "Routers"
+        },
+        {
+            "id": "b1c2d3e4-f5g6-7h8i-9j0k-1l2m3n4o5p6q",
+            "name": "Switches"
+        },
+        {
+            "id": "c1d2e3f4-g5h6-7i8j-9k0l-1m2n3o4p5q6r",
+            "name": "Access Points"
+        }
+    ]
+}
+```
+
+## Descrição dos Diretórios e Arquivos
+
+- **Arquivos de Configuração na Raiz:**
+
+```bash
+
+    .pylintrc: Configuração para o linter Pylint, que ajuda a manter o estilo de código consistente.
+    Dockerfile.app: Dockerfile para a criação do container da aplicação.
+    requirements.txt: Lista de dependências Python necessárias para o projeto.
+    .pre-commit-config.yaml: Configuração para o pre-commit, usado para garantir a qualidade do código antes dos commits.
+    alembic.ini: Configuração do Alembic para migrações do banco de dados.
+    Makefile: Automação de tarefas comuns como build e teste.
+    docker-compose.dev.yml: Configuração do Docker Compose para o ambiente de desenvolvimento.
+    docker-compose.test.yml: Configuração do Docker Compose para o ambiente de teste.
+    Dockerfile.data: Dockerfile para a criação do container de dados.
+    .gitignore: Arquivos e diretórios a serem ignorados pelo Git.
+    .env e .env.example: Arquivos de configuração de ambiente para variáveis sensíveis.
+    t.py: Script auxiliar ou de teste (nome genérico, depende do conteúdo).
+
+Diretório app/
+
+Contém a aplicação principal e a lógica de negócio.
+
+    main.py: Ponto de entrada da aplicação FastAPI.
+    __init__.py: Torna o diretório um pacote Python.
+
+Diretório core/
+
+Componentes centrais e utilitários para a aplicação.
+
+    auth/: Módulo de autenticação.
+        jwt_token.py: Manipulação de tokens JWT.
+        hashing.py: Funções para hashing de senhas.
+        oauth.py: Configuração de OAuth para segurança.
+    enums/: Definições de enums para uso na aplicação.
+        enums.py: Enums específicos usados no sistema.
+    scopes/: Gerenciamento de escopos de autenticação.
+        scopes.py: Escopos e permissões definidos.
+
+Diretório tests/
+
+Contém todos os testes unitários e de integração.
+
+    conftest.py: Configurações e fixtures para testes.
+    create_test_client.py: Configuração do cliente de teste FastAPI.
+    unit/: Testes unitários.
+        checker/: Testes relacionados a verificações de código.
+        hashing/: Testes para hashing de senhas.
+        external/: Testes para funcionalidades externas.
+    integration/: Testes de integração para endpoints.
+
+Diretório schemas/
+
+Definições de esquemas Pydantic para validação e serialização de dados.
+
+    auth.py: Esquemas para autenticação.
+    user.py: Esquemas para usuários.
+    ticket.py: Esquemas para tickets.
+    severity.py: Esquemas para severidades.
+    subcategory.py: Esquemas para subcategorias.
+    category.py: Esquemas para categorias.
+
+Diretório scripts/
+
+Scripts utilitários para tarefas específicas.
+
+    checker/: Scripts para verificações de código.
+        commit_check.py: Script de verificação de commits.
+    external/: Scripts para integração externa.
+        external.py: Integração com serviços externos.
+    db_container_setup/: Scripts para configuração do banco de dados.
+        container_setup.py: Configuração inicial do container de banco de dados.
+
+Diretório api/
+
+Definições de rotas e controladores da API.
+
+    v1/: Primeira versão da API.
+        health.py: Verificação de saúde da API.
+        routers/: Definições de rotas.
+            auth.py: Rotas de autenticação.
+            tickets.py: Rotas de tickets.
+            users.py: Rotas de usuários.
+            categories.py: Rotas de categorias.
+            subcategories.py: Rotas de subcategorias.
+            severities.py: Rotas de severidades.
+        controllers/: Lógica de negócio para cada recurso.
+            severity_controller.py: Controle de severidades.
+            ticket_controller.py: Controle de tickets.
+            users_controller.py: Controle de usuários.
+            category_controller.py: Controle de categorias.
+            subcategory_controller.py: Controle de subcategorias.
+
+Diretório infrastructure/
+
+Configuração da infraestrutura da aplicação.
+
+    database/: Configuração e modelos de banco de dados.
+        setup.py: Configuração do banco de dados.
+        base.py: Base para modelos SQLAlchemy.
+        models/: Definições de modelos de dados.
+            user.py: Modelo de usuário.
+            ticket.py: Modelo de ticket.
+            severity.py: Modelo de severidade.
+            subcategory.py: Modelo de subcategoria.
+            category.py: Modelo de categoria.
+            ticket_category.py: Associação de tickets a categorias.
+            ticket_subcategory.py: Associação de tickets a subcategorias.
+```
 
 ## Métricas - Datadog e New Relic
 
