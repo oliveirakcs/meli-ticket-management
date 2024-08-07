@@ -337,7 +337,7 @@ Os usuários com role de user, têm acesso limitado ao sistema, focado no uso pr
 - **Testes Automatizados:** Implementação de testes unitários e de integração para garantir a confiabilidade do sistema.
 
 
-## API Usage Examples
+## API - Exemplos de uso
 
 Abaixo estão exemplos de como interagir com a API do Meli Ticket Management System. Certifique-se de incluir o token de autenticação no cabeçalho de cada solicitação.
 
