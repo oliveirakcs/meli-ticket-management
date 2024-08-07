@@ -90,7 +90,7 @@ def test_login_invalid_username(test_db_session):
     assert response.json()["detail"] == "Invalid credentials"
 
 
-def test_login_invalid_password(test_user):
+def test_login_invalid_password(user):
     """
     Test the login endpoint with an invalid password.
 
@@ -103,7 +103,7 @@ def test_login_invalid_password(test_user):
     """
     response = client.post(
         "/api/v1/login/",
-        data={"username": test_user.username, "password": "wrongpassword"},
+        data={"username": user["username"], "password": "wrongpassword"},
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect password"
