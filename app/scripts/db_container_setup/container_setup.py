@@ -1,21 +1,9 @@
 """This script is used to wait for a PostgreSQL database to become available and then create required extensions and migrate the database schema.
-
-Usage:
-    python3 script.py <db_host> <db_port> <api_port>
-
-Args:
-    db_host (str): The hostname or IP address of the PostgreSQL database server.
-    db_port (int): The port number of the PostgreSQL database server.
-    api_port (int): The port number on which the API server will run.
-
-Returns:
-    bool: True if the database is ready to receive connections, False otherwise.
 """
 
 #!/usr/bin/env python3
 
 
-import os
 import socket
 import subprocess
 import time
@@ -24,10 +12,6 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-
-DB_USER = os.environ["DB_USER"]
-DB_PASSWORD = os.environ["DB_PASSWORD"]
-DB_NAME = os.environ["DB_NAME"]
 
 
 def _migrate_database():

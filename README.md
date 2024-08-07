@@ -147,6 +147,8 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
 
 ## Instruções de Instalação
 
+### Backend
+
 1. Clone o repositório usando SSH:
     ```bash
     git clone git@github.com:oliveirakcs/ticket-management.git
@@ -227,6 +229,43 @@ Desenvolver uma aplicação CRUD para gerenciamento de tickets com integração 
     ```
 
     Isso irá rodar os testes localizados no diretório especificado.
+
+### Frontend
+
+Este documento fornece as instruções para configurar o ambiente de desenvolvimento para o frontend do projeto.
+
+4. Instalação das Dependências
+
+    Certifique-se de que você tenha o Node.js e o npm instalados em sua máquina. Use o comando abaixo para instalar as dependências necessárias:
+
+    ```bash
+
+    npm install
+    ```
+
+    Este comando irá baixar e instalar todas as dependências listadas no arquivo package.json.
+
+5. Executar o Servidor de Desenvolvimento
+
+    Após instalar as dependências, você pode iniciar o servidor de desenvolvimento com o seguinte comando:
+
+    ```bash
+
+    npm start
+    ```
+
+    Este comando inicia o aplicativo e abre uma nova aba do navegador apontando para http://localhost:3000 onde o aplicativo React estará em execução.
+
+6. Build para Produção
+
+    Para criar uma versão otimizada do aplicativo para produção, execute:
+
+    ```bash
+
+    npm run build
+    ```
+
+    Este comando irá compilar o aplicativo para o diretório build. O build será otimizado para melhor performance e estará pronto para ser implementado.
 
 ## Acesso
 
