@@ -1,7 +1,8 @@
 """Create initial tables in the database."""
 
 import os
-from app.infrastructure.database.models import User, Severity, Category, Subcategory
+from app.core import TicketStatus
+from app.infrastructure.database.models import User, Severity, Category, Subcategory, Ticket, TicketCategory, TicketSubcategory
 from app.infrastructure.database import SessionLocal
 from app.core.auth.hashing import Hash
 from app.infrastructure.database import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
@@ -84,6 +85,69 @@ def create_categories():
         db.add_all(categories)
         db.commit()
         print("Categories created!")
+
+
+def create_fake_tickets():
+    """Create fake tickets for testing purposes."""
+
+    existing_tickets = db.query(Ticket).count()
+
+    if existing_tickets == 0:
+
+        development_category = db.query(Category).filter(Category.name == "Development").first()
+        testing_category = db.query(Category).filter(Category.name == "Testing").first()
+        deploy_category = db.query(Category).filter(Category.name == "Deploy").first()
+
+        development_subcategories = db.query(Subcategory).filter(Subcategory.category_id == development_category.id).all()
+        testing_subcategories = db.query(Subcategory).filter(Subcategory.category_id == testing_category.id).all()
+        deploy_subcategories = db.query(Subcategory).filter(Subcategory.category_id == deploy_category.id).all()
+
+        development_severity = db.query(Severity).filter(Severity.level == 2).first()
+        testing_severity = db.query(Severity).filter(Severity.level == 3).first()
+        deploy_severity = db.query(Severity).filter(Severity.level == 4).first()
+
+        tickets = [
+            Ticket(
+                title="Ticket Test 1",
+                description="This is a test ticket for development purposes.",
+                severity_id=development_severity.id,
+                status=TicketStatus.ABERTO,
+            ),
+            Ticket(
+                title="Ticket Test 2",
+                description="This is a test ticket for testing purposes.",
+                severity_id=testing_severity.id,
+                status=TicketStatus.EM_PROGRESSO,
+            ),
+            Ticket(
+                title="Ticket Test 3",
+                description="This is a test ticket for deployment purposes.",
+                severity_id=deploy_severity.id,
+                status=TicketStatus.RESOLVIDO,
+            ),
+        ]
+
+        db.add_all(tickets)
+        db.commit()
+
+        for ticket in tickets:
+            if ticket.title == "Ticket Test 1":
+                db.add(TicketCategory(ticket_id=ticket.id, category_id=development_category.id))
+                for subcategory in development_subcategories:
+                    db.add(TicketSubcategory(ticket_id=ticket.id, subcategory_id=subcategory.id))
+
+            elif ticket.title == "Ticket Test 2":
+                db.add(TicketCategory(ticket_id=ticket.id, category_id=testing_category.id))
+                for subcategory in testing_subcategories:
+                    db.add(TicketSubcategory(ticket_id=ticket.id, subcategory_id=subcategory.id))
+
+            elif ticket.title == "Ticket Test 3":
+                db.add(TicketCategory(ticket_id=ticket.id, category_id=deploy_category.id))
+                for subcategory in deploy_subcategories:
+                    db.add(TicketSubcategory(ticket_id=ticket.id, subcategory_id=subcategory.id))
+
+        db.commit()
+        print("Fake tickets created!")
 
 
 def create_subcategories():
