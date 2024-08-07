@@ -1,0 +1,93 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+      - 'feature/**'
+      - 'release/**'
+      - 'hotfix/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setting up Python Environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Upgrade PIP
+        run: pip install --upgrade pip
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Create .env File
+        run: |
+          touch .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "PGADMIN_DEFAULT_EMAIL=${{ secrets.PGADMIN_DEFAULT_EMAIL }}" >> .env
+          echo "PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }}" >> .env
+          echo "SYSADMIN_USERNAME=${{ secrets.SYSADMIN_USERNAME }}" >> .env
+          echo "SYSADMIN_NAME=${{ secrets.SYSADMIN_NAME }}" >> .env
+          echo "SYSADMIN_EMAIL=${{ secrets.SYSADMIN_EMAIL }}" >> .env
+          echo "SYSADMIN_PASSWORD=${{ secrets.SYSADMIN_PASSWORD }}" >> .env
+          cat .env
+
+      - name: Verify Pull Request Template
+        run: |
+          TEMPLATE_PATH=".github/pull_request_template.md"
+          if [ ! -f "$TEMPLATE_PATH" ]; then
+            echo "Error: Pull request template file not found at $TEMPLATE_PATH"
+            exit 1
+          fi
+          REQUIRED_FIELDS=("Task Number" "Description" "Related Issues" "Changes Made")
+          for field in "${REQUIRED_FIELDS[@]}"; do
+            grep -iq "$field" "$TEMPLATE_PATH" || echo "Error: The following field is missing in the pull request template: $field"
+          done
+
+      - name: Install DSUtils
+        run: pip install distutils-pytest
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install BC
+        run: sudo apt-get install -y bc
+
+      - name: Install awk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gawk
+
+      - name: Run Pylint Score
+        run: |
+          pylint --output-format=parseable --fail-under=9.8 app
+          pylint_score=$(pylint --output-format=parseable app | grep -oE "rated at ([0-9.]+)")
+          pylint_score=${pylint_score#* }
+          echo "Pylint Score: $pylint_score"
+          if (( $(awk 'BEGIN{print ('"$pylint_score"' >= 9.8)}') )); then
+            echo "Pylint score is 9.8 or greater. Proceeding with the pull request."
+            exit 0
+          else
+            echo "Pylint score is less than 9.8. Exiting without merging the pull request."
+            exit 1
+          fi
+
+      - name: Build and Run Docker Compose
+        run: docker-compose -f ./docker-compose.test.yml up --build --abort-on-container-exit
+
+      - name: Tear Down Docker Compose
+        run: docker-compose -f ./docker-compose.test.yml down
