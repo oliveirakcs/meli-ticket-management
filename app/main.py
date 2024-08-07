@@ -5,13 +5,15 @@ Main API script for Meli Ticket Manager.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import router
-from app.infrastructure import create_sysadmin, create_categories, create_severities, create_subcategories, create_fake_tickets
+from app.infrastructure import create_sysadmin, create_categories, create_severities, create_subcategories, create_fake_tickets, create_user
 
 create_sysadmin()
+create_user()
 create_severities()
 create_categories()
 create_subcategories()
 create_fake_tickets()
+
 
 app = FastAPI(
     title="Meli Ticket Manager",

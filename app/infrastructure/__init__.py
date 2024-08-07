@@ -4,4 +4,11 @@ This module is responsible for the database connection and the creation of the d
 
 from app.infrastructure.database import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER, get_db
 from app.infrastructure.database.models import Category, Severity, Subcategory, Ticket, User, TicketCategory, TicketSubcategory
-from app.infrastructure.database.setup import create_sysadmin, create_severities, create_categories, create_subcategories, create_fake_tickets
+from app.infrastructure.database.setup import (
+    create_sysadmin,
+    create_severities,
+    create_categories,
+    create_subcategories,
+    create_fake_tickets,
+    create_user,
+)

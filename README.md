@@ -274,6 +274,21 @@ Este documento fornece as instruções para configurar o ambiente de desenvolvim
 
     PGAdmin: http://localhost:5050
     O PGAdmin pode ser acessado neste link para gerenciar e visualizar o banco de dados PostgreSQL
+
+    Frontend: http://localhost:3000
+    O frontend será disponibilizado no endereço acima. 
+
+    Foram criados, inicialmente 2 usuários default: 
+
+    username: sysadmin
+    password: password
+
+    e 
+
+    username: user
+    password: password
+
+
   
 
 ## Funcionalidades

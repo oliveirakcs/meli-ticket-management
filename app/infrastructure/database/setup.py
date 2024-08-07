@@ -15,11 +15,7 @@ connection_string = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{
 
 
 def create_sysadmin():
-    """Create the sysadmin user if it does not exist.
-
-    This function checks if the sysadmin user exists in the database.
-    If not, it creates the sysadmin user.
-    """
+    """Create the sysadmin user if it does not exist."""
 
     user = db.query(User).filter(User.username == "sysadmin").first()
 
@@ -35,6 +31,25 @@ def create_sysadmin():
         db.add(new_user)
         db.commit()
         print("Sysadmin user created!")
+
+
+def create_user():
+    """Create the basic user if it does not exist."""
+
+    user = db.query(User).filter(User.username == "user").first()
+
+    if not user:
+        new_user = User(
+            username=os.environ["USER_USERNAME"],
+            name=os.environ["USER_NAME"],
+            email=os.environ["USER_EMAIL"],
+            password=Hash.bcrypt(os.environ["USER_PASSWORD"]),
+            active=True,
+            role="user",
+        )
+        db.add(new_user)
+        db.commit()
+        print("User user created!")
 
 
 def create_severities():
