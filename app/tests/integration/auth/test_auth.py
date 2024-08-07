@@ -71,7 +71,7 @@ def test_login_success(test_user):
     assert response.json()["token_type"] == "bearer"
 
 
-def test_login_invalid_username(test_db_session):
+def test_login_invalid_username(access_token):
     """
     Test the login endpoint with an invalid username.
 
@@ -83,8 +83,7 @@ def test_login_invalid_username(test_db_session):
     2. Verify the response status code is 401 (Unauthorized).
     """
     response = client.post(
-        "/api/v1/login/",
-        data={"username": "invalid_user", "password": "password123"},
+        "/api/v1/login/", data={"username": "invalid_user", "password": "password123"}, headers={"Authorization": f"Bearer {access_token}"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid credentials"
